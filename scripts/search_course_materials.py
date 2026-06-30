@@ -35,16 +35,14 @@ def _import_source(name: str, api_key: str | None = None):
 
 # ── 数据源配置 ──────────────────────────────────────────────────
 DEFAULT_SOURCES: list[str] = [
-    "arxiv",
-    "bilibili",
-    "wikipedia",
-    # 以下需要 API Key 或特殊配置，默认关闭
-    # "youtube",      # 需要 YOUTUBE_API_KEY
-    # "zhihu",        # 需要 Cookie
-    # "open_courses",
-    # "podcasts",
-    # "anysearch",
+    "anysearch",  # 通用搜索（首选，质量最高）
 ]
+# 以下需要 API Key 或特殊配置，默认关闭
+# "youtube",      # 需要 YOUTUBE_API_KEY
+# "zhihu",        # 需要 Cookie
+# "open_courses",
+# "podcasts",
+
 
 # 数据源 → 所需 API Key 环境变量
 SOURCE_API_KEY_ENV: dict[str, str] = {

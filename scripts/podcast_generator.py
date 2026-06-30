@@ -247,7 +247,10 @@ def generate_audio_segments(
             continue
 
         print(f"  🎙️  生成第 {i+1}/{len(segments)} 段 ({seg['speaker']})...")
-        ok = tts_edge(seg["text"], out_path, voice=seg_voice)
+        # 先用 gTTS（通过代理，更稳定），失败再尝试 edge-tts
+        ok = tts_gtts(seg["text"], out_path)
+        if not ok:
+            ok = tts_edge(seg["text"], out_path, voice=seg_voice)
         if ok:
             audio_files.append(out_path)
         else:

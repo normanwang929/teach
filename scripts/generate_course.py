@@ -54,6 +54,21 @@ def generate_demo_course(topic: str) -> str:
     )
 
 
+def load_env():
+    """手动加载 .env 文件（兼容无 python-dotenv 的环境）"""
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip().strip("'\"")
+                os.environ.setdefault(key, val)
+
+
 def call_llm(prompt: str, api_key: str, base_url: str | None = None) -> str:
     """调用 LLM API（兼容 OpenAI / DeepSeek）"""
     try:
@@ -254,6 +269,7 @@ def generate_course(
 
 
 def main():
+    load_env()
     parser = argparse.ArgumentParser(description="生成课程讲义内容")
     parser.add_argument("topic", help="课程主题")
     parser.add_argument("--materials", required=True, help="资料 JSON 文件路径")
