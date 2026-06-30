@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Teach - 测试页面</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    input { width: 300px; padding: 10px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    #status { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+    .progress { background: #ddd; height: 20px; margin: 10px 0; }
+    .progress-bar { background: #4CAF50; height: 100%; width: 0%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <h1>🎓 Teach Platform - 测试页面</h1>
+  <p>输入课程主题，点击生成：</p>
+  <input type="text" id="topic" placeholder="例如：Git 基础入门" value="Git 基础">
+  <button onclick="generate()">生成课程</button>
+  
+  <div id="status" style="display:none;">
+    <h3>生成进度</h3>
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p id="message">准备中...</p>
+    <pre id="log"></pre>
+  </div>
+
+  <script>
+    let taskId = null;
+    let pollTimer = null;
+
+    function generate() {
+      const topic = document.getElementById('topic').value.trim();
+      if (!topic) { alert('请输入课程主题'); return; }
+      
+      document.getElementById('status').style.display = 'block';
+      document.getElementById('message').textContent = '正在提交...';
+      document.getElementById('log').textContent = '';
+      
+      fetch('http://localhost:5000/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic })
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById('message').textContent = '错误: ' + data.error;
+          return;
+        }
+        taskId = data.task_id;
+        document.getElementById('message').textContent = '任务已提交，ID: ' + taskId;
+        pollStatus();
+      })
+      .catch(err => {
+        document.getElementById('message').textContent = '提交失败: ' + err.message;
+        document.getElementById('log').textContent = '请确保 API 服务器已启动（运行 python api_server.py）';
+      });
+    }
+
+    function pollStatus() {
+      if (!taskId) return;
+      
+      fetch(`http://localhost:5000/api/status/${taskId}`)
+        .then(resp => resp.json())
+        .then(data => {
+          document.getElementById('message').textContent = data.message || '处理中...';
+          document.getElementById('progressBar').style.width = (data.progress || 0) + '%';
+          
+          if (data.status === 'done') {
+            document.getElementById('message').innerHTML = '✅ 生成完成！<br><a href="library.html">查看课程库</a>';
+            clearInterval(pollTimer);
+          } else if (data.status === 'error') {
+            document.getElementById('message').textContent = '❌ 错误: ' + data.message;
+            clearInterval(pollTimer);
+          } else {
+            // 继续轮询
+            setTimeout(pollStatus, 3000);
+          }
+        })
+        .catch(err => {
+          console.error('轮询错误:', err);
+        });
+    }
+  </script>
+</body>
+</html>
