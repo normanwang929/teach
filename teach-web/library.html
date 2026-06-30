@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>课程库 - Teach</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+  <!-- 主导航 -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">🎓 Teach</a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">生成课程</a>
+        <a href="library.html" class="nav-link active">课程库</a>
+        <a href="report.html" class="nav-link">我的学习</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 筛选栏 -->
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <input
+        type="text"
+        class="filter-search"
+        id="searchInput"
+        placeholder="搜索课程…"
+        oninput="filterCourses()"
+      />
+      <button class="filter-tag active" onclick="filterByTag('all', this)">全部</button>
+      <button class="filter-tag" onclick="filterByTag('自动生成', this)">自动生成</button>
+      <button class="filter-tag" onclick="filterByTag('编程', this)">编程</button>
+      <button class="filter-tag" onclick="filterByTag('AI', this)">AI</button>
+      <button class="filter-tag" onclick="filterByTag('语言', this)">语言</button>
+    </div>
+  </div>
+
+  <!-- 课程网格 -->
+  <section class="section-courses" style="padding-top: 24px;">
+    <div class="section-inner">
+      <div class="course-grid" id="courseGrid">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🎯</div>
+          <p>还没有课程</p>
+          <p class="empty-sub"><a href="index.html">去生成你的第一门课程</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let allCourses = [];
+
+    document.addEventListener('DOMContentLoaded', loadCourses);
+
+    async function loadCourses() {
+      try {
+        const resp = await fetch(`data/courses.json?t=${Date.now()}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        allCourses = data.courses || [];
+        renderCourses(allCourses);
+      } catch (e) {
+        console.log('暂无课程数据');
+      }
+    }
+
+    function renderCourses(courses) {
+      const grid = document.getElementById('courseGrid');
+      if (!courses.length) {
+        document.getElementById('emptyState')?.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('emptyState')?.classList.add('hidden');
+
+      let html = '';
+      courses.forEach(c => {
+        const progress = c.progress || 0;
+        const tags = (c.tags || []).slice(0, 2).map(t => `<span class="tag">${t}</span>`).join('');
+        html += `
+          <div class="course-card" onclick="openCourse('${c.id}')">
+            <div class="course-card-header">${c.icon || '📚'}</div>
+            <div class="course-card-body">
+              <div class="course-card-title">${c.title}</div>
+              <div class="course-card-desc">${c.description || ''}</div>
+              <div class="course-card-meta">
+                <div class="course-card-tags">${tags}</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div class="progress-mini">
+                    <div class="progress-mini-inner" style="width:${progress}%"></div>
+                  </div>
+                  <span style="font-size:12px;color:var(--text2);">${progress}%</span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+      grid.innerHTML = html;
+    }
+
+    function filterCourses() {
+      const term = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = allCourses.filter(c =>
+        c.title.toLowerCase().includes(term) ||
+        (c.description || '').toLowerCase().includes(term)
+      );
+      renderCourses(filtered);
+    }
+
+    function filterByTag(tag, btn) {
+      document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (tag === 'all') {
+        renderCourses(allCourses);
+      } else {
+        const filtered = allCourses.filter(c => (c.tags || []).includes(tag));
+        renderCourses(filtered);
+      }
+    }
+
+    function openCourse(id) {
+      // 优先打开课程详情页，否则打开讲义 Markdown
+      const course = allCourses.find(c => c.id === id);
+      if (course && course.path) {
+        location.href = `lesson.html?course=${id}`;
+      } else {
+        location.href = `index.html`;
+      }
+    }
+  </script>
+</body>
+</html>

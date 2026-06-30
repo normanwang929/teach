@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>课程详情 - Teach</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <!-- Markdown 渲染 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- 代码高亮 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+</head>
+<body>
+
+  <!-- 顶部进度条 -->
+  <div class="learning-progress-bar" id="progressBar" style="display:none;">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- 主导航 -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">🎓 Teach</a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">生成课程</a>
+        <a href="library.html" class="nav-link">课程库</a>
+        <a href="report.html" class="nav-link">我的学习</a>
+      </div>
+      <button class="btn-action small" onclick="toggleSidebar()" id="sidebarToggle">📋 大纲</button>
+    </div>
+  </nav>
+
+  <!-- 左侧大纲侧边栏 -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <aside class="lesson-sidebar" id="lessonSidebar">
+    <div class="sidebar-header">
+      <strong>课程大纲</strong>
+      <button class="btn-close" onclick="toggleSidebar()">✕</button>
+    </div>
+    <div class="sidebar-content" id="sidebarContent">
+      <!-- 由 JS 渲染 -->
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="lesson-main" id="lessonMain">
+    <div class="lesson-loading" id="loadingView">
+      <div class="spinner"></div>
+      <p>加载课程中…</p>
+    </div>
+
+    <div class="lesson-content" id="lessonView" style="display:none;">
+      <!-- 课程头部信息 -->
+      <header class="lesson-header" id="lessonHeader"></header>
+
+      <!-- 讲义内容（Markdown 渲染） -->
+      <article class="lesson-article markdown-body" id="lessonArticle"></article>
+
+      <!-- 底部导航 -->
+      <div class="lesson-nav" id="lessonNav"></div>
+    </div>
+  </main>
+
+  <!-- 底部音频播放器 -->
+  <div class="audio-player-bar" id="audioPlayerBar" style="display:none;">
+    <button class="audio-btn" id="audioPlayBtn" onclick="toggleAudio()">▶️</button>
+    <div class="audio-info">
+      <div class="audio-title" id="audioTitle">播客讲解</div>
+      <div class="audio-progress">
+        <div class="audio-progress-fill" id="audioProgressFill"></div>
+      </div>
+    </div>
+    <audio id="audioElement" ontimeupdate="updateAudioProgress()" onended="onAudioEnded()"></audio>
+  </div>
+
+  <!-- 视频弹窗 -->
+  <div class="video-modal" id="videoModal" style="display:none;">
+    <div class="video-modal-inner">
+      <button class="btn-close" onclick="closeVideo()">✕</button>
+      <video id="videoElement" controls style="width:100%;max-height:80vh;border-radius:8px;"></video>
+    </div>
+  </div>
+
+  <!-- 测验弹窗 -->
+  <div class="quiz-modal" id="quizModal" style="display:none;">
+    <div class="quiz-modal-inner">
+      <button class="btn-close" onclick="closeQuiz()">✕</button>
+      <div id="quizContent"></div>
+    </div>
+  </div>
+
+  <script src="assets/teach-progress.js"></script>
+  <script>
+    let courseData = null;
+    let lessonData = null;
+    let quizData = null;
+    let currentSection = 0;
+    let audioPlaying = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(location.search);
+      const courseId = params.get('course');
+      if (courseId) {
+        loadCourse(courseId);
+      } else {
+        location.href = 'library.html';
+      }
+    });
+
+    async function loadCourse(courseId) {
+      try {
+        // 加载课程索引
+        const resp = await fetch(`data/courses.json?t=${Date.now()}`);
+        const data = await resp.json();
+        courseData = data.courses?.find(c => c.id === courseId);
+
+        if (!courseData) {
+          showError('未找到课程');
+          return;
+        }
+
+        document.title = `${courseData.title} - Teach`;
+
+        // 并行加载：讲义 + 测验 + 资料
+        const loads = [];
+        if (courseData.path) {
+          loads.push(
+            fetch(courseData.path + `?t=${Date.now()}`)
+              .then(r => r.text())
+              .then(t => { lessonData = { markdown: t }; })
+              .catch(() => {})
+          );
+        }
+        if (courseData.quiz) {
+          loads.push(
+            fetch(courseData.quiz + `?t=${Date.now()}`)
+              .then(r => r.json())
+              .then(d => { quizData = d; })
+              .catch(() => {})
+          );
+        }
+
+        await Promise.all(loads);
+        renderLesson();
+        updateLearningProgress();
+      } catch (e) {
+        showError('加载失败：' + e.message);
+      }
+    }
+
+    function renderLesson() {
+      document.getElementById('loadingView').style.display = 'none';
+      document.getElementById('lessonView').style.display = 'block';
+
+      const c = courseData;
+
+      // 渲染头部
+      document.getElementById('lessonHeader').innerHTML = `
+        <div class="lesson-cover" style="background:${c.color || 'linear-gradient(135deg, #667eea, #764ba2)'}">
+          <div class="lesson-cover-inner">
+            <div class="lesson-icon">${c.icon || '📚'}</div>
+            <h1 class="lesson-title">${c.title}</h1>
+            <div class="lesson-meta">
+              <span>📖 ${c.lesson_count || '?'} 课时</span>
+              <span>📅 ${new Date(c.created_at).toLocaleDateString('zh-CN')}</span>
+              <span>⏱ 预计 ${c.lesson_count ? c.lesson_count * 15 : '?'} 分钟</span>
+              <span id="progressBadge" class="progress-badge">0%</span>
+            </div>
+            <div class="lesson-actions-top">
+              ${c.podcast ? `<button class="btn-action" onclick="showAudioPlayer()">🎵 播客讲解</button>` : ''}
+              ${c.video ? `<button class="btn-action" onclick="showVideo()">🎬 教学视频</button>` : ''}
+              ${quizData ? `<button class="btn-action" onclick="showQuiz()">✍️ 测验</button>` : ''}
+              <button class="btn-action outline" onclick="toggleSidebar()">📋 大纲</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 渲染 Markdown 讲义
+      if (lessonData?.markdown) {
+        const article = document.getElementById('lessonArticle');
+        // 使用 marked.js 渲染
+        if (typeof marked !== 'undefined') {
+          marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: function(code, lang) {
+              if (lang && hljs.getLanguage(lang)) {
+                return hljs.highlight(code, { language: lang }).value;
+              }
+              return code;
+            }
+          });
+          article.innerHTML = marked.parse(lessonData.markdown);
+          // 代码高亮
+          article.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+          });
+        } else {
+          // 降级：简易渲染
+          article.innerHTML = renderMarkdownSimple(lessonData.markdown);
+        }
+
+        // 渲染侧边栏大纲
+        renderSidebarOutline();
+      }
+
+      // 渲染底部导航
+      renderLessonNav();
+    }
+
+    function renderMarkdownSimple(md) {
+      return md
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^/, '<p>')
+        .replace(/$/, '</p>');
+    }
+
+    function renderSidebarOutline() {
+      if (!lessonData?.markdown) return;
+
+      const lines = lessonData.markdown.split('\n');
+      let html = '';
+      let sectionIndex = 0;
+
+      lines.forEach((line, i) => {
+        const h2Match = line.match(/^## (.+)$/);
+        const h3Match = line.match(/^### (.+)$/);
+
+        if (h2Match) {
+          sectionIndex++;
+          const id = `section-${sectionIndex}`;
+          // 给对应的 h2 加 id
+          setTimeout(() => {
+            const el = document.querySelector(`#lessonArticle h2:nth-of-type(${sectionIndex})`);
+            if (el) el.id = id;
+          }, 100);
+
+          html += `
+            <div class="outline-item chapter" data-target="${id}">
+              <span class="outline-num">${sectionIndex}</span>
+              <span class="outline-title">${h2Match[1]}</span>
+            </div>
+          `;
+        } else if (h3Match) {
+          const id = `section-${sectionIndex}-${i}`;
+          html += `
+            <div class="outline-item lesson" data-target="${id}">
+              <span class="outline-dot">•</span>
+              <span class="outline-title">${h3Match[1]}</span>
+            </div>
+          `;
+        }
+      });
+
+      document.getElementById('sidebarContent').innerHTML = html;
+
+      // 绑定点击跳转
+      document.querySelectorAll('.outline-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const target = item.dataset.target;
+          const el = document.getElementById(target);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            toggleSidebar(); // 移动端自动关闭
+          }
+        });
+      });
+    }
+
+    function renderLessonNav() {
+      document.getElementById('lessonNav').innerHTML = `
+        <button class="btn-nav" onclick="location.href='library.html'">← 返回课程库</button>
+        <div style="flex:1;"></div>
+        ${quizData ? `<button class="btn-nav primary" onclick="showQuiz()">📝 做测验（${quizData.questions?.length || 0} 题）</button>` : ''}
+        <button class="btn-nav" onclick="markComplete()">✅ 标记已完成</button>
+      `;
+    }
+
+    // ── 音频播放器 ────────────────────────────────────────────────────────────────
+    function showAudioPlayer() {
+      if (!courseData?.podcast) return;
+
+      const bar = document.getElementById('audioPlayerBar');
+      bar.style.display = 'flex';
+
+      const audio = document.getElementById('audioElement');
+      audio.src = courseData.podcast;
+      document.getElementById('audioTitle').textContent = `${courseData.title} - 播客讲解`;
+
+      // 自动播放
+      audio.play();
+      audioPlaying = true;
+      document.getElementById('audioPlayBtn').textContent = '⏸️';
+    }
+
+    function toggleAudio() {
+      const audio = document.getElementById('audioElement');
+      if (audioPlaying) {
+        audio.pause();
+        document.getElementById('audioPlayBtn').textContent = '▶️';
+      } else {
+        audio.play();
+        document.getElementById('audioPlayBtn').textContent = '⏸️';
+      }
+      audioPlaying = !audioPlaying;
+    }
+
+    function updateAudioProgress() {
+      const audio = document.getElementById('audioElement');
+      const pct = (audio.currentTime / audio.duration) * 100 || 0;
+      document.getElementById('audioProgressFill').style.width = pct + '%';
+    }
+
+    function onAudioEnded() {
+      document.getElementById('audioPlayBtn').textContent = '▶️';
+      audioPlaying = false;
+    }
+
+    // ── 视频播放器 ────────────────────────────────────────────────────────────────
+    function showVideo() {
+      if (!courseData?.video) return;
+
+      const modal = document.getElementById('videoModal');
+      modal.style.display = 'flex';
+
+      const video = document.getElementById('videoElement');
+      video.src = courseData.video;
+      video.play();
+    }
+
+    function closeVideo() {
+      const modal = document.getElementById('videoModal');
+      modal.style.display = 'none';
+      document.getElementById('videoElement').pause();
+    }
+
+    // ── 测验 ──────────────────────────────────────────────────────────────────────
+    function showQuiz() {
+      if (!quizData) return;
+
+      const modal = document.getElementById('quizModal');
+      modal.style.display = 'flex';
+
+      let html = `
+        <div class="quiz-header">
+          <h2>📝 课程测验</h2>
+          <p>共 ${quizData.questions.length} 题，测测你的掌握程度吧！</p>
+        </div>
+        <div class="quiz-questions" id="quizQuestions">
+      `;
+
+      quizData.questions.forEach((q, i) => {
+        html += `
+          <div class="quiz-question" data-index="${i}">
+            <div class="quiz-q-text">${i + 1}. ${q.question}</div>
+            <div class="quiz-options">
+              ${q.options.map((opt, j) => `
+                <label class="quiz-option" data-q="${i}" data-opt="${j}">
+                  <input type="radio" name="q${i}" value="${j}" onchange="checkAnswer(${i}, ${j})" />
+                  <span class="quiz-opt-text">${String.fromCharCode(65 + j)}. ${opt}</span>
+                </label>
+              `).join('')}
+            </div>
+            <div class="quiz-feedback" id="feedback-${i}" style="display:none;"></div>
+          </div>
+        `;
+      });
+
+      html += `
+        </div>
+        <div class="quiz-footer">
+          <button class="btn-action" onclick="submitQuiz()">提交测验</button>
+          <div class="quiz-score" id="quizScore" style="display:none;"></div>
+        </div>
+      `;
+
+      document.getElementById('quizContent').innerHTML = html;
+    }
+
+    function checkAnswer(qIndex, optIndex) {
+      const q = quizData.questions[qIndex];
+      const feedback = document.getElementById(`feedback-${qIndex}`);
+
+      if (optIndex === q.answer) {
+        feedback.className = 'quiz-feedback correct';
+        feedback.textContent = '✅ 正确！' + (q.explanation || '');
+      } else {
+        feedback.className = 'quiz-feedback wrong';
+        feedback.textContent = `❌ 错误。正确答案是 ${String.fromCharCode(65 + q.answer)}`;
+      }
+      feedback.style.display = 'block';
+
+      // 保存到 localStorage
+      const results = JSON.parse(localStorage.getItem('teach-quiz-results') || '{}');
+      results[courseData.id] = results[courseData.id] || {};
+      results[courseData.id][qIndex] = optIndex === q.answer;
+      localStorage.setItem('teach-quiz-results', JSON.stringify(results));
+    }
+
+    function submitQuiz() {
+      const results = JSON.parse(localStorage.getItem('teach-quiz-results') || '{}');
+      const courseResults = results[courseData.id] || {};
+      let correct = 0;
+      let total = quizData.questions.length;
+
+      quizData.questions.forEach((q, i) => {
+        if (courseResults[i] === true) correct++;
+      });
+
+      const score = Math.round((correct / total) * 100);
+      const scoreEl = document.getElementById('quizScore');
+      scoreEl.style.display = 'block';
+      scoreEl.innerHTML = `
+        <div style="font-size:32px;font-weight:700;color:var(--accent2);">${score} 分</div>
+        <div>答对 ${correct}/${total} 题</div>
+        ${score >= 80 ? '<div style="color:var(--green);margin-top:8px;">🎉 太棒了！你已经掌握了这门课程！</div>' :
+          '<div style="color:var(--orange);margin-top:8px;">💪 建议再复习一遍讲义哦～</div>'}
+      `;
+    }
+
+    function closeQuiz() {
+      document.getElementById('quizModal').style.display = 'none';
+    }
+
+    // ── 学习进度 ──────────────────────────────────────────────────────────────────
+    function updateLearningProgress() {
+      if (!courseData) return;
+
+      const progress = getCourseProgress(courseData.id);
+      const badge = document.getElementById('progressBadge');
+      if (badge) {
+        badge.textContent = progress + '%';
+        badge.style.background = progress >= 100 ? 'var(--green)' : 'var(--accent2)';
+      }
+
+      // 更新顶部进度条
+      const bar = document.getElementById('progressBar');
+      const fill = document.getElementById('progressFill');
+      if (progress > 0) {
+        bar.style.display = 'block';
+        fill.style.width = progress + '%';
+      }
+    }
+
+    function markComplete() {
+      if (!courseData) return;
+      markCourseComplete(courseData.id);
+      updateLearningProgress();
+      alert('🎉 恭喜完成课程！');
+    }
+
+    // ── 侧边栏 ────────────────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      const sidebar = document.getElementById('lessonSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const isOpen = sidebar.classList.contains('open');
+
+      if (isOpen) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      } else {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+      }
+    }
+
+    // ── 工具 ──────────────────────────────────────────────────────────────────────
+    function showError(msg) {
+      document.getElementById('loadingView').innerHTML = `
+        <div style="text-align:center;padding:60px;color:var(--red);">
+          <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+          <div>${msg}</div>
+          <button class="btn-action" style="margin-top:16px;" onclick="location.href='library.html'">返回课程库</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

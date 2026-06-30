@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teach - AI 自动生成课程</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+  <!-- 主导航 -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">🎓 Teach</a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">生成课程</a>
+        <a href="library.html" class="nav-link">课程库</a>
+        <a href="report.html" class="nav-link">我的学习</a>
+      </div>
+      <div class="nav-status" id="navStatus">
+        <span class="status-dot"></span>
+        <span>就绪</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero：输入区 -->
+  <section class="hero-generate">
+    <div class="hero-inner">
+      <h1 class="hero-title">输入你想学的，<br/>AI 帮你生成完整课程</h1>
+      <p class="hero-subtitle">自动搜索资料 · 生成讲义 · 制作播客 · 生成视频</p>
+
+      <div class="input-area">
+        <div class="input-row">
+          <input
+            type="text"
+            id="topicInput"
+            class="topic-input"
+            placeholder="例如：Python 编程入门、Transformer 原理、React 实战..."
+            autocomplete="off"
+          />
+          <button class="btn-generate" id="generateBtn" onclick="startGenerate()">
+            <span class="btn-text">生成课程</span>
+            <span class="btn-loading" style="display:none;">生成中…</span>
+          </button>
+        </div>
+        <div class="input-hints">
+          <span class="hint-label">热门：</span>
+          <button class="hint-tag" onclick="setTopic('Python 编程入门')">Python</button>
+          <button class="hint-tag" onclick="setTopic('机器学习基础')">机器学习</button>
+          <button class="hint-tag" onclick="setTopic('React 前端开发')">React</button>
+          <button class="hint-tag" onclick="setTopic('Docker 容器入门')">Docker</button>
+          <button class="hint-tag" onclick="setTopic('英语口语速成')">英语口语</button>
+        </div>
+      </div>
+
+      <!-- 生成进度 -->
+      <div class="progress-area" id="progressArea" style="display:none;">
+        <div class="progress-steps" id="progressSteps"></div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progressBar"></div>
+        </div>
+        <p class="progress-log" id="progressLog"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最近生成的课程 -->
+  <section class="section-courses">
+    <div class="section-inner">
+      <h2 class="section-title">最近生成</h2>
+      <div class="course-grid" id="recentCourses">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🎯</div>
+          <p>还没有生成的课程</p>
+          <p class="empty-sub">在上方输入你想学的内容，点击「生成课程」</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 如何运作 -->
+  <section class="section-how">
+    <div class="section-inner">
+      <h2 class="section-title">如何运作</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <h3>输入主题</h3>
+          <p>告诉我你想学什么，越具体越好</p>
+        </div>
+        <div class="how-step-arrow">→</div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <h3>自动搜集资料</h3>
+          <p>从 arXiv、维基、播客等来源自动搜集优质学习资料</p>
+        </div>
+        <div class="how-step-arrow">→</div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <h3>生成课程内容</h3>
+          <p>AI 整理资料，生成结构化讲义、播客音频和视频</p>
+        </div>
+        <div class="how-step-arrow">→</div>
+        <div class="how-step">
+          <div class="how-step-num">4</div>
+          <h3>开始学习</h3>
+          <p>课程自动出现在你的课程库，随时开始学习</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>Teach Platform · 开源 · <a href="https://github.com/normanwang929/teach" target="_blank">GitHub</a></p>
+  </footer>
+
+  <script src="assets/app-generate.js"></script>
+</body>
+</html>

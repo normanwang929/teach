@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习报告 — Teach Platform</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>📊 我的学习报告</h1>
+    <p class="hero-subtitle">追踪你的学习进度，见证成长</p>
+  </div>
+
+  <!-- 报告内容 -->
+  <div class="main-container">
+    <div class="learning-report" id="report-container">
+      <div class="report-header">
+        <h3>📈 学习概览</h3>
+        <button class="btn-export-progress" onclick="exportProgress()">📥 导出进度</button>
+        <button class="btn-export-progress" onclick="document.getElementById('import-file').click()" style="margin-left:8px">📁 导入进度</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importProgressFile(event)">
+      </div>
+
+      <div class="report-stats" id="report-stats">
+        <!-- JS 注入 -->
+      </div>
+
+      <h4 style="margin:24px 0 12px; color:var(--text)">📚 课程详情</h4>
+      <div class="report-courses" id="report-courses">
+        <!-- JS 注入 -->
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px">
+      <a href="index.html" style="color:var(--accent); text-decoration:none">← 返回课程列表</a>
+    </div>
+  </div>
+
+  <script src="assets/teach-progress.js"></script>
+  <script>
+    function renderReport() {
+      const report = window.TeachProgress.generateReport();
+      const statsEl = document.getElementById('report-stats');
+      const coursesEl = document.getElementById('report-courses');
+
+      // 统计卡片
+      statsEl.innerHTML = `
+        <div class="report-stat">
+          <div class="report-stat-value">${report.totalCourses}</div>
+          <div class="report-stat-label">学习课程</div>
+        </div>
+        <div class="report-stat">
+          <div class="report-stat-value">${report.completedCourses}</div>
+          <div class="report-stat-label">已完成</div>
+        </div>
+        <div class="report-stat">
+          <div class="report-stat-value">${report.inProgressCourses}</div>
+          <div class="report-stat-label">进行中</div>
+        </div>
+        <div class="report-stat">
+          <div class="report-stat-value">${report.totalTimeSpentStr}</div>
+          <div class="report-stat-label">学习时长</div>
+        </div>
+      `;
+
+      // 课程列表
+      if (report.courses.length === 0) {
+        coursesEl.innerHTML = '<p style="color:var(--text-light); text-align:center; padding:20px">暂无学习记录，<a href="index.html">去选课</a>吧！</p>';
+        return;
+      }
+
+      coursesEl.innerHTML = report.courses.map(c => {
+        const updated = c.lastAccess ? new Date(c.lastAccess).toLocaleDateString('zh-CN') : '-';
+        return `
+          <div class="report-course-item">
+            <div>
+              <div class="report-course-name">${c.title || c.courseId}</div>
+              <div style="font-size:12px; color:var(--text-light)">最后访问: ${updated}</div>
+            </div>
+            <div class="report-course-progress">
+              <div style="display:flex; align-items:center; gap:8px">
+                <div style="width:80px; height:6px; background:var(--border); border-radius:3px; overflow:hidden">
+                  <div style="width:${c.percent}%; height:100%; background:var(--accent); border-radius:3px"></div>
+                </div>
+                <span style="font-size:13px; color:var(--text-light)">${c.percent}%</span>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function exportProgress() {
+      window.TeachProgress.exportProgress();
+    }
+
+    function importProgressFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      window.TeachProgress.importProgress(file, true).then(() => {
+        alert('✅ 进度导入成功！');
+        renderReport();
+      }).catch(err => {
+        alert('❌ 导入失败: ' + err.message);
+      });
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', renderReport);
+  </script>
+</body>
+</html>

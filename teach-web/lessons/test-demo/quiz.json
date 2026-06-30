@@ -1,0 +1,70 @@
+[
+  {
+    "lesson_id": 1,
+    "lesson_title": "什么是Python 基础？",
+    "questions": [
+      {
+        "question": "关于「什么是Python 基础？」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  },
+  {
+    "lesson_id": 2,
+    "lesson_title": "环境搭建",
+    "questions": [
+      {
+        "question": "关于「环境搭建」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  },
+  {
+    "lesson_id": 3,
+    "lesson_title": "基础语法",
+    "questions": [
+      {
+        "question": "关于「基础语法」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  },
+  {
+    "lesson_id": 4,
+    "lesson_title": "项目实践",
+    "questions": [
+      {
+        "question": "关于「项目实践」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  }
+]

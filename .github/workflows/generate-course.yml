@@ -1,0 +1,170 @@
+name: Generate Course
+
+# 触发条件：
+# 1. 手动触发（可用于测试）
+# 2. 新建 Issue 时（Issue 标题含"生成课程"）
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: '课程主题'
+        required: true
+        type: string
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    # 只处理含"生成课程"的 Issue
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issues' && contains(github.event.issue.title, '生成课程'))
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install urllib3 requests edge-tts pillow beautifulsoup4 lxml
+          # 如果需要 YouTube API
+          # pip install google-api-python-client
+
+      - name: Extract topic
+        id: topic
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "topic=${{ inputs.topic }}" >> $GITHUB_OUTPUT
+          else
+            # 从 Issue 标题提取："生成课程：Python" → "Python"
+            TOPIC=$(echo "${{ github.event.issue.title }}" | sed 's/生成课程[：:]*//')
+            echo "topic=$TOPIC" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on Issue (started)
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 课程生成任务已开始！\n\n主题：**' + process.env.TOPIC + '**\n\n步骤：\n- [x] 1. 任务已接收\n- [ ] 2. 搜索学习资料\n- [ ] 3. 生成课程大纲\n- [ ] 4. 生成讲义内容\n- [ ] 5. 生成播客音频\n- [ ] 6. 生成教学视频\n- [ ] 7. 提交到课程库\n\n我会在每一步更新进度。'
+            });
+        env:
+          TOPIC: ${{ steps.topic.outputs.topic }}
+
+      - name: Step 2 - Search course materials
+        id: search
+        run: |
+          cd scripts
+          python search_course_materials.py "${{ steps.topic.outputs.topic }}" \
+            --sources arxiv,wikipedia,podcasts \
+            --max-per-source 5 \
+            --output ../teach-web/data/materials-${{ steps.topic.outputs.topic }}.json \
+            --format json
+          echo "SEARCH_DONE=true" >> $GITHUB_OUTPUT
+
+      - name: Update Issue (search done)
+        if: always() && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ 步骤 2 完成：已搜索学习资料'
+            });
+
+      - name: Step 3 & 4 - Generate course content (LLM)
+        id: course
+        run: |
+          cd scripts
+          python generate_course.py "${{ steps.topic.outputs.topic }}" \
+            --materials ../teach-web/data/materials-${{ steps.topic.outputs.topic }}.json \
+            --output ../teach-web/lessons/${{ steps.topic.outputs.topic }} \
+            --api-key "${{ secrets.OPENAI_API_KEY }}"
+          echo "COURSE_DONE=true" >> $GITHUB_OUTPUT
+
+      - name: Step 5 - Generate podcast
+        id: podcast
+        run: |
+          cd scripts
+          python podcast_generator.py \
+            ../teach-web/lessons/${{ steps.topic.outputs.topic }}/course.md \
+            --output ../teach-web/lessons/${{ steps.topic.outputs.topic }}/podcast.mp3 \
+            --style monologue || echo "Podcast generation skipped"
+          echo "PODCAST_DONE=true" >> $GITHUB_OUTPUT
+
+      - name: Step 6 - Generate video
+        id: video
+        run: |
+          cd scripts
+          python video_generator.py \
+            ../teach-web/lessons/${{ steps.topic.outputs.topic }}/course.md \
+            --output ../teach-web/lessons/${{ steps.topic.outputs.topic }}/video.mp4 \
+            --no-subtitles || echo "Video generation skipped"
+          echo "VIDEO_DONE=true" >> $GITHUB_OUTPUT
+
+      - name: Step 7 - Update course index
+        id: update-index
+        run: |
+          cd scripts
+          python update_course_index.py \
+            --topic "${{ steps.topic.outputs.topic }}" \
+            --lesson-dir ../teach-web/lessons/${{ steps.topic.outputs.topic }} \
+            --output ../teach-web/data/courses.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "teach-bot"
+          git config user.email "bot@teach.platform"
+          git add teach-web/
+          git commit -m "feat: 自动生成课程「${{ steps.topic.outputs.topic }}」" || echo "No changes"
+          git push
+
+      - name: Comment on Issue (done)
+        if: always() && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const courseId = '${{ steps.topic.outputs.topic }}'.replace(/\s+/g, '-').toLowerCase();
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🎉 课程生成完成！\n\n课程 ID：`' + courseId + '`\n\n查看课程：[课程库](https://normanwang929.github.io/teach/library.html?course=' + courseId + ')\n\n生成的文件：\n- 讲义：`/teach-web/lessons/' + courseId + '/course.md`\n- 播客：`/teach-web/lessons/' + courseId + '/podcast.mp3`\n- 视频：`/teach-web/lessons/' + courseId + '/video.mp4`'
+            });
+            // 关闭 Issue
+            github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed'
+            });
+
+      - name: Update Issue (error)
+        if: failure() && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ 课程生成失败，请查看 [Actions 日志](' + context.payload.repository.html_url + '/actions/runs/' + context.runId + ') 获取详细信息。'
+            });

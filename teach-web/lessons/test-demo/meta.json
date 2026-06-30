@@ -1,0 +1,18 @@
+{
+  "id": "python-基础",
+  "title": "Python 基础",
+  "description": "关于「Python 基础」的自动生成课程",
+  "icon": "📚",
+  "tags": [
+    "自动生成"
+  ],
+  "progress": 0,
+  "created_at": "2026-07-01T00:13:13.432889",
+  "lesson_count": 4,
+  "files": {
+    "course": "course.md",
+    "quiz": "quiz.json",
+    "podcast": "podcast.mp3",
+    "video": "video.mp4"
+  }
+}

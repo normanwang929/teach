@@ -1,0 +1,36 @@
+[
+  {
+    "lesson_id": 1,
+    "lesson_title": "1.1 什么是{topic}？",
+    "questions": [
+      {
+        "question": "关于「1.1 什么是{topic}？」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  },
+  {
+    "lesson_id": 2,
+    "lesson_title": "2.1 基础语法",
+    "questions": [
+      {
+        "question": "关于「2.1 基础语法」，以下说法正确的是？",
+        "options": [
+          "选项 A",
+          "选项 B",
+          "选项 C",
+          "选项 D"
+        ],
+        "answer": 0,
+        "explanation": "（部署后，LLM 将生成真实测验题目）"
+      }
+    ]
+  }
+]
