@@ -1,6 +1,22 @@
 {
   "courses": [
     {
+      "id": "git-基础入门",
+      "title": "Git 基础入门",
+      "description": "关于「Git 基础入门」的自动生成课程",
+      "icon": "📚",
+      "tags": [
+        "自动生成"
+      ],
+      "progress": 0,
+      "lesson_count": 9,
+      "created_at": "2026-07-01T00:51:47.668515",
+      "path": "lessons/git-基础入门/course.md",
+      "podcast": "lessons/git-基础入门/podcast.mp3",
+      "video": "lessons/git-基础入门/video.mp4",
+      "quiz": "lessons/git-基础入门/quiz.json"
+    },
+    {
       "id": "python-基础入门",
       "title": "Python 基础入门",
       "description": "关于「Python 基础入门」的自动生成课程",

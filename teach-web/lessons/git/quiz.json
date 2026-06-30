@@ -1,0 +1,353 @@
+[
+  {
+    "lesson_id": 1,
+    "lesson_title": "1.1 什么是版本控制",
+    "questions": [
+      {
+        "question": "以下哪个选项最准确地描述了版本控制系统的核心价值？",
+        "options": [
+          "确保代码没有错误",
+          "提供历史追溯、协作支持和分支管理等功能",
+          "自动修复代码中的冲突",
+          "替代人工编写代码"
+        ],
+        "answer": 1,
+        "explanation": "版本控制系统的核心价值在于记录修改历史、支持多人协作和分支管理，而不是自动修复错误或替代编程。选项B准确概括了这些功能。"
+      },
+      {
+        "question": "Git 与 SVN 的主要区别是什么？",
+        "options": [
+          "Git 只能用于 Linux 系统",
+          "SVN 比 Git 更快",
+          "Git 是分布式的，每个开发者本地都有完整仓库副本",
+          "SVN 支持分支，Git 不支持"
+        ],
+        "answer": 2,
+        "explanation": "Git 是分布式版本控制系统，每个开发者本地拥有完整仓库，可以离线操作；而 SVN 是集中式的，依赖中央服务器。这是两者最根本的区别。"
+      },
+      {
+        "question": "为什么 Git 被设计为分布式架构？",
+        "options": [
+          "为了增加代码的复杂性",
+          "为了支持离线操作和非线性开发",
+          "为了强制开发者联网",
+          "为了减少代码存储空间"
+        ],
+        "answer": 1,
+        "explanation": "Git 的分布式设计使其支持离线操作，并且通过分支管理强力支持非线性开发。Linus Torvalds 在设计时特别强调了速度和分布式特性，以高效管理大型项目。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 2,
+    "lesson_title": "1.2 安装与配置 Git",
+    "questions": [
+      {
+        "question": "在 Windows 系统上安装 Git 后，推荐使用哪个工具来执行 Git 命令？",
+        "options": [
+          "命令提示符（CMD）",
+          "PowerShell",
+          "Git Bash",
+          "Visual Studio Code"
+        ],
+        "answer": 2,
+        "explanation": "Git Bash 是 Git for Windows 提供的模拟 Linux 环境的终端，能提供更一致和友好的 Git 命令体验，尤其是在处理 Shell 命令和路径时。其他选项如 CMD 或 PowerShell 也可用，但 Git Bash 是官方推荐的首选工具。"
+      },
+      {
+        "question": "为什么在安装 Git 后必须使用 `git config --global` 设置用户名和邮箱？",
+        "options": [
+          "为了验证 Git 是否正确安装",
+          "因为每次提交都会记录作者信息，便于追踪代码贡献者",
+          "为了设置 Git 的默认编辑器",
+          "为了将本地仓库与远程仓库关联"
+        ],
+        "answer": 1,
+        "explanation": "Git 的每次提交（commit）都会包含作者信息，包括用户名和邮箱。设置这些配置是为了在版本历史中清晰地标识每个更改的作者，便于团队协作和代码追溯。验证安装应使用 `git --version`，而设置编辑器或关联远程仓库是可选步骤。"
+      },
+      {
+        "question": "在 macOS 上，如果想使用 Homebrew 安装 Git，正确的命令是什么？",
+        "options": [
+          "brew install git",
+          "xcode-select --install",
+          "sudo apt-get install git",
+          "git --version"
+        ],
+        "answer": 0,
+        "explanation": "Homebrew 是 macOS 上流行的包管理器，`brew install git` 是使用它安装 Git 的正确命令。`xcode-select --install` 是另一种安装方式，但并非通过 Homebrew。`sudo apt-get install git` 适用于 Ubuntu/Debian 等 Linux 发行版，而 `git --version` 是用于验证安装的命令。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 3,
+    "lesson_title": "2.1 创建仓库与首次提交",
+    "questions": [
+      {
+        "question": "执行 `git init` 命令后，Git 仓库的核心数据存储在哪里？",
+        "options": [
+          "项目文件夹根目录下的 `.git` 隐藏文件夹",
+          "当前用户的主目录下的 `.git` 文件夹",
+          "系统临时文件夹中的 `git` 目录",
+          "与 `index.html` 同级的 `repo` 文件夹"
+        ],
+        "answer": 0,
+        "explanation": "`git init` 会在当前项目文件夹中创建一个名为 `.git` 的隐藏文件夹，这是 Git 仓库的核心，所有版本信息和对象数据库都存储在此。其他选项均不正确，因为 Git 仓库是本地化的，不会自动存储在用户主目录或系统临时文件夹中。"
+      },
+      {
+        "question": "在 Git 的三区域模型中，文件被 `git add` 后处于哪个状态？",
+        "options": [
+          "未跟踪（Untracked）",
+          "已暂存（Staged）",
+          "已提交（Committed）",
+          "已修改（Modified）"
+        ],
+        "answer": 1,
+        "explanation": "`git add` 命令将文件从工作区添加到暂存区（Staging Area），此时文件状态变为“已暂存（Staged）”。未跟踪状态是文件刚创建时；已提交状态需要执行 `git commit` 后才达成；已修改状态是文件被编辑后但未暂存时的状态。"
+      },
+      {
+        "question": "执行 `git commit -m \"初始化项目\"` 时，`-m` 参数的作用是什么？",
+        "options": [
+          "指定提交的作者信息",
+          "直接提供提交信息，避免打开编辑器",
+          "标记本次提交为合并提交",
+          "修改上一次提交的信息"
+        ],
+        "answer": 1,
+        "explanation": "`-m` 参数后面跟字符串作为提交信息，用于描述本次提交的内容，这样可以直接在命令行中完成提交，而无需打开文本编辑器输入信息。其他选项均不正确：作者信息由 `git config` 配置；合并提交需要使用 `git merge`；修改上一次提交信息需使用 `git commit --amend`。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 4,
+    "lesson_title": "2.2 查看历史与版本回退",
+    "questions": [
+      {
+        "question": "使用 `git log --oneline` 命令时，输出结果与默认 `git log` 相比，主要区别是什么？",
+        "options": [
+          "只显示提交的哈希值和提交信息，不显示作者和日期",
+          "只显示最近一次的提交记录",
+          "以图形化方式显示分支合并历史",
+          "按时间顺序从旧到新显示提交"
+        ],
+        "answer": 0,
+        "explanation": "`git log --oneline` 将每个提交的完整信息压缩为一行，仅包含简短的哈希值和提交信息（如 '9d3f2e1 初始化项目'），便于快速浏览历史。默认 `git log` 会显示作者、日期等详细信息。"
+      },
+      {
+        "question": "在 Git 中，执行 `git reset --hard <commit-hash>` 命令后，以下哪种说法是正确的？",
+        "options": [
+          "工作区的修改会被保留，但暂存区会重置到指定提交",
+          "HEAD 指针、暂存区和工作区都会重置到指定提交，未提交的修改会丢失",
+          "只有 HEAD 指针会移动，工作区和暂存区保持不变",
+          "暂存区会重置，但工作区的修改会以未跟踪文件形式保留"
+        ],
+        "answer": 1,
+        "explanation": "`--hard` 是三种模式中最危险的，它会将 HEAD 指针、暂存区和工作区全部重置到指定提交状态，工作区中所有未提交的修改将被永久删除，因此使用前需谨慎。"
+      },
+      {
+        "question": "小明不小心将未完成的文件添加到了暂存区（执行了 `git add`），但他想将其移回工作区，应该使用以下哪个命令？",
+        "options": [
+          "git reset HEAD <file>",
+          "git reset --soft HEAD <file>",
+          "git reset --hard HEAD <file>",
+          "git rm --cached <file>"
+        ],
+        "answer": 0,
+        "explanation": "`git reset HEAD <file>` 是 `git add` 的反向操作，它将文件从暂存区移回工作区，但不会修改工作区文件内容。`--soft` 不影响暂存区，`--hard` 会删除工作区修改，而 `git rm --cached` 会从版本控制中移除文件（不推荐用于简单撤销暂存）。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 5,
+    "lesson_title": "3.1 分支的概念与创建",
+    "questions": [
+      {
+        "question": "在 Git 中，分支本质是什么？",
+        "options": [
+          "一个独立的代码副本",
+          "一个指向某个提交的可移动指针",
+          "一个存储所有修改的文件夹",
+          "一个用于备份的临时区域"
+        ],
+        "answer": 1,
+        "explanation": "根据讲义，分支是 Git 最强大的功能之一，简单来说就是指向某个提交的指针。创建新分支时，Git 只是创建了一个新的可移动指针，而不是复制整个代码库。"
+      },
+      {
+        "question": "如果你正在 `master` 分支上工作，想创建一个名为 `fix-bug` 的新分支并立即切换过去，应该使用哪个命令？",
+        "options": [
+          "git branch fix-bug",
+          "git checkout fix-bug",
+          "git checkout -b fix-bug",
+          "git merge fix-bug"
+        ],
+        "answer": 2,
+        "explanation": "`git checkout -b fix-bug` 命令可以一步创建并切换分支。`git branch fix-bug` 只创建不切换，`git checkout fix-bug` 要求分支已存在，而 `git merge fix-bug` 是合并操作。"
+      },
+      {
+        "question": "在合并分支时，假设你在 `feature-login` 分支上完成了开发，现在要合并回 `master` 主分支，正确的操作顺序是？",
+        "options": [
+          "先在 master 上执行 git merge feature-login，再切换回 feature-login",
+          "先切换到 master 分支，再执行 git merge feature-login",
+          "直接在 feature-login 分支上执行 git merge master",
+          "先删除 feature-login 分支，再在 master 上执行 git merge"
+        ],
+        "answer": 1,
+        "explanation": "正确的合并流程是：先切换到目标分支（接收合并的分支，这里是 master），然后执行 `git merge feature-login`。这样 master 分支就能包含 feature-login 的所有修改。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 6,
+    "lesson_title": "3.2 解决合并冲突",
+    "questions": [
+      {
+        "question": "当两个分支修改了同一个文件的同一行代码时，Git 无法自动合并，这种情况称为：",
+        "options": [
+          "合并冲突",
+          "代码错误",
+          "分支错误",
+          "提交冲突"
+        ],
+        "answer": 0,
+        "explanation": "合并冲突（Merge Conflict）是指当两个分支修改了同一个文件的同一行代码时，Git 无法自动决定保留哪个版本，从而需要手动解决的情况。"
+      },
+      {
+        "question": "在 Git 合并冲突标记中，`<<<<<<< HEAD` 和 `=======` 之间的内容代表：",
+        "options": [
+          "当前分支（HEAD）的修改",
+          "被合并分支（feature）的修改",
+          "Git 自动生成的解决方案",
+          "冲突的原始文件内容"
+        ],
+        "answer": 0,
+        "explanation": "在冲突标记中，`<<<<<<< HEAD` 和 `=======` 之间显示的是当前分支（即 HEAD 指向的分支）的内容，而 `=======` 和 `>>>>>>> feature` 之间显示的是被合并分支（feature）的内容。"
+      },
+      {
+        "question": "手动解决完合并冲突后，下一步应该执行什么操作来完成合并？",
+        "options": [
+          "直接使用 git merge --continue 或 git add 和 git commit",
+          "删除冲突文件并重新合并",
+          "使用 git reset 放弃合并",
+          "使用 git rebase 重新应用提交"
+        ],
+        "answer": 0,
+        "explanation": "解决冲突后，需要将修改后的文件通过 git add 标记为已解决，然后执行 git commit 提交合并结果。也可以使用 git merge --continue 来完成合并过程。这确保了冲突解决的结果被正式记录在版本历史中。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 7,
+    "lesson_title": "4.1 连接远程仓库",
+    "questions": [
+      {
+        "question": "执行 `git push -u origin master` 时，`-u` 参数的主要作用是什么？",
+        "options": [
+          "强制推送本地分支覆盖远程分支",
+          "将本地分支与远程分支关联，后续可直接使用 `git push`",
+          "删除远程仓库中不存在的本地分支",
+          "同时推送所有本地分支到远程仓库"
+        ],
+        "answer": 1,
+        "explanation": "`-u` 即 `--set-upstream`，它将本地 `master` 分支与远程 `origin/master` 分支关联起来。关联后，后续只需执行 `git push` 或 `git pull` 即可，无需再指定远程仓库和分支名。"
+      },
+      {
+        "question": "使用 `git clone` 克隆远程仓库时，以下哪一项不是自动完成的操作？",
+        "options": [
+          "初始化本地 Git 仓库",
+          "添加远程仓库并默认命名为 origin",
+          "下载所有分支和历史记录",
+          "自动将本地仓库推送到远程"
+        ],
+        "answer": 3,
+        "explanation": "`git clone` 会初始化本地仓库、添加远程仓库（默认名为 origin）、下载所有分支和历史记录，并自动切换到主分支。但克隆是从远程拉取代码到本地，并不会自动推送任何数据到远程。"
+      },
+      {
+        "question": "在 GitHub 上创建新远程仓库时，建议不要勾选“Initialize this repository with a README”，这是因为：",
+        "options": [
+          "README 文件会占用仓库空间，影响性能",
+          "本地已有仓库，避免创建后产生冲突或多余提交",
+          "远程仓库必须完全为空才能关联本地仓库",
+          "GitHub 会自动忽略 README 文件，勾选无意义"
+        ],
+        "answer": 1,
+        "explanation": "如果本地已有仓库，勾选初始化 README 会导致远程仓库产生一个初始提交，与本地仓库的提交历史不一致。后续关联并推送时可能产生冲突，增加不必要的合并操作。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 8,
+    "lesson_title": "4.2 团队协作工作流",
+    "questions": [
+      {
+        "question": "在 Feature Branch 工作流中，以下哪一步是正确创建功能分支并同步主分支的步骤？",
+        "options": [
+          "直接执行 git checkout -b feature-user-profile，然后推送到远程",
+          "先 git checkout master 和 git pull origin master，再 git checkout -b feature-user-profile",
+          "先 git push origin master，再 git checkout -b feature-user-profile",
+          "先 git clone 项目，再直接创建分支并开发"
+        ],
+        "answer": 1,
+        "explanation": "正确的流程是先从主分支同步最新代码（git checkout master 和 git pull origin master），然后基于主分支创建功能分支（git checkout -b feature-user-profile），确保分支基于最新代码，避免冲突。其他选项忽略了同步主分支的关键步骤。"
+      },
+      {
+        "question": "当 Git 拒绝推送并显示 '! [rejected]' 错误时，最可能的原因是？",
+        "options": [
+          "本地仓库没有提交记录",
+          "远程分支已被删除",
+          "远程仓库有本地没有的提交，需要先拉取合并",
+          "分支名称不符合命名规范"
+        ],
+        "answer": 2,
+        "explanation": "Git 拒绝推送通常是因为远程仓库有新的提交，而本地没有这些更新。根据讲义，错误提示建议 'fetch first'，需要先拉取远程代码并合并（如 git pull origin master），再推送。其他选项不是导致该错误的典型原因。"
+      },
+      {
+        "question": "在团队协作中，Pull Request（PR）的主要目的是什么？",
+        "options": [
+          "自动将代码合并到主分支，无需人工干预",
+          "备份代码到远程仓库，防止本地丢失",
+          "发起代码审查请求，让团队成员审查并讨论修改建议",
+          "强制同步所有分支的代码到最新版本"
+        ],
+        "answer": 2,
+        "explanation": "根据讲义，创建 PR 的目的是请求将功能分支合并到主分支，团队成员可以审查代码、提出修改建议，确保代码质量。PR 不是自动合并，也不是备份或强制同步，而是协作和审查机制。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 9,
+    "lesson_title": "5.1 .gitignore 与文件管理",
+    "questions": [
+      {
+        "question": "在 Git 项目中，以下哪种文件最适合被添加到 .gitignore 中？",
+        "options": [
+          "源代码文件（如 main.py）",
+          "编译生成的二进制文件（如 .exe）",
+          "项目文档（如 README.md）",
+          "配置文件模板（如 config.example.json）"
+        ],
+        "answer": 1,
+        "explanation": "编译生成的二进制文件（如 .exe）是典型的非必要跟踪文件，因为它们可以从源代码重新生成，且体积较大，不适合纳入版本控制。其他选项通常是项目核心文件或共享模板，应被跟踪。"
+      },
+      {
+        "question": "假设你已经在 Git 中跟踪了一个文件 debug.log，现在想让它被 .gitignore 忽略，正确的操作步骤是什么？",
+        "options": [
+          "直接修改 .gitignore 文件，添加 debug.log，Git 会自动忽略它",
+          "先使用 git rm --cached debug.log 从暂存区移除，再修改 .gitignore",
+          "删除 debug.log 文件，然后修改 .gitignore",
+          "在 .gitignore 中添加 debug.log，然后执行 git reset HEAD debug.log"
+        ],
+        "answer": 1,
+        "explanation": "对于已被跟踪的文件，.gitignore 不会自动生效。需要先用 git rm --cached 命令从 Git 的跟踪列表中移除该文件（保留工作区副本），再添加到 .gitignore 中，Git 才会忽略后续修改。"
+      },
+      {
+        "question": "在 .gitignore 文件中写有模式 build/，以下哪个文件或目录会被忽略？",
+        "options": [
+          "根目录下的 build 文件夹及其所有内容",
+          "任何子目录中名为 build 的文件夹",
+          "名为 build 的单个文件（不是文件夹）",
+          "所有以 build 开头的文件"
+        ],
+        "answer": 0,
+        "explanation": "模式 build/ 末尾的斜杠表示仅匹配目录，并且默认只匹配根目录下的 build 文件夹（除非使用 **/build/ 模式）。因此只有根目录下的 build 文件夹及其内容会被忽略。"
+      }
+    ]
+  }
+]
