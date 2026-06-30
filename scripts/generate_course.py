@@ -104,6 +104,45 @@ def generate_demo_quiz(lesson_title: str) -> list[dict]:
     ]
 
 
+def generate_quiz_with_llm(lesson_title: str, lesson_content: str, api_key: str) -> list[dict]:
+    """用 LLM 生成真实测验题目"""
+    prompt = f"""请根据以下课时内容，生成 3 道选择题（单选）。
+
+课时标题：{lesson_title}
+课时内容：
+{lesson_content[:1000]}
+
+要求：
+1. 返回 JSON 格式，包含 3 道题目
+2. 每道题包含：question（题目）、options（4个选项）、answer（正确答案索引 0-3）、explanation（解释）
+3. 题目要考察核心概念，不是死记硬背
+4. 难度适中，适合初学者
+
+输出格式（直接返回 JSON 数组）：
+[
+  {{
+    "question": "题目1",
+    "options": ["A", "B", "C", "D"],
+    "answer": 0,
+    "explanation": "解释"
+  }}
+]
+"""
+    try:
+        import json
+        import re
+        response = call_llm(prompt, api_key)
+        # 提取 JSON（可能在 ```json 代码块中）
+        json_match = re.search(r'\[.*\]', response, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group())
+        else:
+            return json.loads(response)
+    except Exception as e:
+        print(f"  ⚠️ 测验生成失败，使用演示模式：{e}")
+        return generate_demo_quiz(lesson_title)
+
+
 def generate_course(
     topic: str,
     materials: list[dict],
@@ -156,11 +195,29 @@ def generate_course(
     print("  🧪 生成课时测验…")
     lessons = extract_lessons(course_md)
     quiz_data = []
+
+    # 提取每个课时的内容（用于生成测验）
+    import re
+    lesson_sections = re.split(r'### ', course_md)[1:]  # 跳过第一章前的简介
+
     for i, title in enumerate(lessons, 1):
+        # 找到该课时的内容
+        lesson_content = ""
+        for section in lesson_sections:
+            if section.startswith(title):
+                lesson_content = section[:1500]  # 取前 1500 字符
+                break
+
+        # 用 LLM 生成测验（如果可用）
+        if api_key and not demo:
+            questions = generate_quiz_with_llm(title, lesson_content, api_key)
+        else:
+            questions = generate_demo_quiz(title)
+
         quiz_data.append({
             "lesson_id": i,
             "lesson_title": title,
-            "questions": generate_demo_quiz(title),
+            "questions": questions,
         })
 
     quiz_file = output_dir / "quiz.json"
