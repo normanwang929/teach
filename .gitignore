@@ -27,6 +27,8 @@ output/audio/*.wav
 output/video/*.mp4
 output/video/*.avi
 output/subtitles/*.srt
+teach-web/lessons/*/audio.mp3
+teach-web/lessons/*/video.mp4
 
 # IDE
 .vscode/

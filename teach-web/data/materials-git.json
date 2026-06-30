@@ -1,0 +1,29 @@
+[
+  {
+    "url": "https://git-scm.com/book/zh/v2",
+    "title": "Pro Git 中文版",
+    "description": "Git 官方教程，涵盖从基础到高级的所有内容",
+    "content_type": "article",
+    "source": "official",
+    "language": "zh",
+    "is_free": true
+  },
+  {
+    "url": "https://www.runoob.com/git/git-tutorial.html",
+    "title": "Git 教程 - 菜鸟教程",
+    "description": "Git 基础入门教程，适合初学者",
+    "content_type": "article",
+    "source": "runoob",
+    "language": "zh",
+    "is_free": true
+  },
+  {
+    "url": "https://learngitbranching.js.org/?locale=zh_CN",
+    "title": "Learn Git Branching",
+    "description": "交互式 Git 分支学习工具",
+    "content_type": "interactive",
+    "source": "interactive",
+    "language": "zh",
+    "is_free": true
+  }
+]
