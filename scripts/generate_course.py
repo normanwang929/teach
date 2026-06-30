@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-generate_course.py - 课程内容生成器（简化版，避免 f-string 问题）
+generate_course.py - 课程内容生成器
 
 用法：
-  python generate_course.py "Python 编程入门" \
-    --materials ../teach-web/data/materials-Python.json \
-    --output ../teach-web/lessons/python-intro \
-    [--api-key SK-YOUR-KEY]
+  # 本地模式（读取 .env 中的 API Key）
+  python generate_course.py "Python 编程入门" --materials data/materials.json --output lessons/python-intro
+
+  # 演示模式（无需 API Key）
+  python generate_course.py "Python" --materials data/materials.json --output lessons/python --demo
 """
 
 from __future__ import annotations
@@ -14,7 +15,22 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
+
+# 尝试加载 .env 文件
+def load_env():
+    """从 .env 文件加载环境变量"""
+    env_file = Path(__file__).parent.parent / ".env"
+    if env_file.exists():
+        with open(env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, value = line.partition("=")
+                    os.environ.setdefault(key.strip(), value.strip())
+
+load_env()
 
 
 def generate_demo_course(topic: str) -> str:
@@ -23,7 +39,7 @@ def generate_demo_course(topic: str) -> str:
         f"# {topic}\n\n"
         f"> 本课程自动生成，涵盖「{topic}」的核心知识点。\n\n"
         "## 第 1 章 入门基础\n"
-        "### 1.1 什么是{topic}？\n"
+        "### 1.1 什么是" + topic + "？\n"
         "**学习目标：**\n"
         "- 理解基本概念\n"
         "- 了解应用场景\n\n"
@@ -36,6 +52,34 @@ def generate_demo_course(topic: str) -> str:
         "**讲义：**\n"
         "（自动生成内容）\n"
     )
+
+
+def call_llm(prompt: str, api_key: str, base_url: str | None = None) -> str:
+    """调用 LLM API（兼容 OpenAI / DeepSeek）"""
+    try:
+        import openai
+    except ImportError:
+        print("  ⚠️ 未安装 openai 库，正在安装…")
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "openai", "-q"])
+        import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url=base_url or os.getenv("OPENAI_BASE_URL"),
+    )
+
+    print("  🤖 正在调用 LLM 生成内容…")
+    response = client.chat.completions.create(
+        model=os.getenv("LLM_MODEL", "deepseek-chat"),
+        messages=[
+            {"role": "system", "content": "你是一位资深讲师，擅长制作结构清晰、内容详实的中文课程讲义。"},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.7,
+        max_tokens=4096,
+    )
+    return response.choices[0].message.content
 
 
 def extract_lessons(course_md: str) -> list[str]:
@@ -65,15 +109,44 @@ def generate_course(
     materials: list[dict],
     output_dir: Path,
     api_key: str | None,
+    demo: bool = False,
 ) -> dict:
     """生成完整课程，返回课程元数据"""
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1: 生成课程大纲 + 讲义
     print("  📝 生成课程大纲和讲义…")
-    if api_key:
-        print("  ⚠️ LLM 调用未实现，使用演示模式")
-    course_md = generate_demo_course(topic)
+
+    # 构建提示词
+    prompt = "你是一位资深讲师，请为主题「" + topic + "」设计一门完整的结构化课程。\n\n"
+    prompt += "要求：\n"
+    prompt += "1. 使用 Markdown 格式\n"
+    prompt += "2. 开头用 > 引用格式写课程简介\n"
+    prompt += "3. 分多个章节（## 第 X 章 章节名）\n"
+    prompt += "4. 每章包含多个课时（### X.Y 课时标题）\n"
+    prompt += "5. 每个课时包含：\n"
+    prompt += "   - **学习目标：**（- 列表）\n"
+    prompt += "   - **讲义：**（详细内容，500字以上）\n"
+    prompt += "   - 代码示例（如适用，用 ```语言 代码块）\n"
+    prompt += "6. 课程总长度适中，适合 1-2 小时学习\n\n"
+
+    if materials:
+        prompt += "参考资料（可用于引用）：\n"
+        for i, m in enumerate(materials[:5], 1):
+            title = m.get('title', '')
+            url = m.get('url', '')
+            prompt += f"{i}. {title} - {url}\n"
+        prompt += "\n"
+
+    # 调用 LLM 或演示模式
+    if api_key and not demo:
+        course_md = call_llm(prompt, api_key)
+    else:
+        if not api_key:
+            print("  ⚠️ 未提供 API Key，使用演示模式")
+        else:
+            print("  ⚠️ 演示模式开启，使用模板内容")
+        course_md = generate_demo_course(topic)
 
     course_file = output_dir / "course.md"
     course_file.write_text(course_md, encoding="utf-8")
@@ -128,7 +201,8 @@ def main():
     parser.add_argument("topic", help="课程主题")
     parser.add_argument("--materials", required=True, help="资料 JSON 文件路径")
     parser.add_argument("--output", required=True, help="输出目录")
-    parser.add_argument("--api-key", help="LLM API Key（可选）")
+    parser.add_argument("--api-key", help="LLM API Key（可选，默认读 .env）")
+    parser.add_argument("--demo", action="store_true", help="演示模式（不调用 LLM）")
     args = parser.parse_args()
 
     # 读取资料
@@ -136,14 +210,19 @@ def main():
     if args.materials and Path(args.materials).exists():
         materials = json.loads(Path(args.materials).read_text(encoding="utf-8"))
 
-    api_key = args.api_key or os.getenv("OPENAI_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
+    # 获取 API Key（优先级：命令行 > 环境变量 > .env）
+    api_key = args.api_key or os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
 
     output_dir = Path(args.output)
-    meta = generate_course(args.topic, materials, output_dir, api_key)
+    meta = generate_course(args.topic, materials, output_dir, api_key, args.demo)
 
     print(f"\n✅ 课程生成完成！")
     print(f"   课程 ID：{meta['id']}")
     print(f"   输出目录：{output_dir}")
+    print(f"\n📂 生成的文件：")
+    print(f"   - course.md  （课程讲义）")
+    print(f"   - quiz.json   （测验题目）")
+    print(f"   - meta.json   （课程元数据）")
 
 
 if __name__ == "__main__":

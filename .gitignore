@@ -1,0 +1,38 @@
+# 敏感信息
+.env
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+env/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# 生成的音频/视频（太大，不传 GitHub）
+output/audio/*.mp3
+output/audio/*.wav
+output/video/*.mp4
+output/video/*.avi
+output/subtitles/*.srt
+
+# IDE
+.vscode/
+.idea/
+*.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
