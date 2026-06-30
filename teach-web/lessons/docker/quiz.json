@@ -1,0 +1,236 @@
+[
+  {
+    "lesson_id": 1,
+    "lesson_title": "1.1 容器 vs. 虚拟机：核心概念辨析",
+    "questions": [
+      {
+        "question": "关于容器与虚拟机的本质区别，以下哪一项描述是正确的？",
+        "options": [
+          "容器与虚拟机都模拟完整的客户操作系统，以实现环境隔离",
+          "容器共享宿主机操作系统内核，而虚拟机包含独立的客户操作系统",
+          "容器比虚拟机更重，因为容器需要包含完整的操作系统",
+          "虚拟机启动速度比容器快，因为虚拟机不依赖宿主机内核"
+        ],
+        "answer": 1,
+        "explanation": "根据讲义，容器共享宿主机操作系统内核，只隔离用户空间进程，不包含内核；而虚拟机则运行一个完整的客户操作系统。因此选项B正确。"
+      },
+      {
+        "question": "在Docker中，将镜像（Image）类比为面向对象的“类”，容器（Container）类比为“对象”。这个类比最准确地说明了什么？",
+        "options": [
+          "镜像和容器是完全相同的概念，只是名称不同",
+          "镜像是只读的模板，容器是从镜像创建的可运行实例",
+          "容器可以修改并保存为新的镜像，因此容器也是只读的",
+          "镜像可以启动、停止和删除，而容器只能用于存储"
+        ],
+        "answer": 1,
+        "explanation": "讲义中明确说明：镜像是只读模板（类似类），容器是镜像的运行实例（类似对象），可以启动、停止等。因此选项B正确。"
+      },
+      {
+        "question": "传统应用部署中常遇到“环境地狱”问题，主要原因是：",
+        "options": [
+          "应用代码本身存在严重缺陷",
+          "不同环境（如开发机与服务器）的操作系统和依赖版本不一致",
+          "虚拟机技术无法提供隔离环境",
+          "Docker镜像过大导致部署缓慢"
+        ],
+        "answer": 1,
+        "explanation": "讲义开头提到，当开发环境和部署环境（如Python版本、库版本）不一致时，会导致环境依赖冲突，即“环境地狱”。因此选项B正确。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 2,
+    "lesson_title": "1.2 Docker 安装与 Hello World",
+    "questions": [
+      {
+        "question": "在 Docker 安装后，使用哪个命令可以验证 Docker 是否成功安装并查看其版本信息？",
+        "options": [
+          "docker info",
+          "docker --version",
+          "docker run hello-world",
+          "docker version --all"
+        ],
+        "answer": 1,
+        "explanation": "根据课时内容，`docker --version` 是专门用于验证安装并显示 Docker 版本号的命令，例如输出 `Docker version 24.0.7`。其他命令虽然也能提供信息，但不是验证安装的标准首选。"
+      },
+      {
+        "question": "当执行 `docker run hello-world` 时，如果本地没有 `hello-world` 镜像，Docker 会执行以下哪项操作？",
+        "options": [
+          "直接报错，提示镜像不存在",
+          "从 Docker Hub 自动下载该镜像，然后运行容器",
+          "创建一个空的容器并运行",
+          "询问用户是否要下载镜像"
+        ],
+        "answer": 1,
+        "explanation": "根据课时内容，`docker run hello-world` 命令会先检查本地镜像缓存，如果不存在，则自动从 Docker Hub（官方镜像仓库）下载 `hello-world` 镜像，然后基于该镜像创建并运行容器。这体现了 Docker 的便捷性。"
+      },
+      {
+        "question": "Docker Desktop 对初学者来说被强烈推荐的主要原因是什么？",
+        "options": [
+          "它只包含 Docker 引擎，更轻量",
+          "它需要手动配置所有组件，适合学习",
+          "它集成了 Docker 引擎、CLI 客户端和 Docker Compose 等多个核心工具",
+          "它只能在 Linux 系统上运行"
+        ],
+        "answer": 2,
+        "explanation": "课时内容明确指出，Docker Desktop 包含了 Docker 引擎、Docker CLI 客户端、Docker Compose 等一系列工具，安装后即可使用，无需单独配置，因此特别适合初学者快速上手。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 3,
+    "lesson_title": "2.1 管理 Docker 镜像",
+    "questions": [
+      {
+        "question": "执行 `docker pull nginx:1.25` 命令后，以下哪项描述是正确的？",
+        "options": [
+          "会从 Docker Hub 拉取标签为 latest 的 Nginx 镜像",
+          "会从本地缓存中加载 Nginx 镜像，无需联网",
+          "会从 Docker Hub 拉取标签为 1.25 的 Nginx 镜像",
+          "会从 Docker Hub 拉取所有版本的 Nginx 镜像"
+        ],
+        "answer": 2,
+        "explanation": "`docker pull` 默认从 Docker Hub 拉取镜像，语法中 `仓库名:标签` 指定了具体版本，因此 `nginx:1.25` 只会拉取标签为 1.25 的镜像，而不是 latest 或其他版本。"
+      },
+      {
+        "question": "在生产环境中，为什么建议在 `docker pull` 时指定明确的镜像标签（如 `ubuntu:22.04`），而不是依赖 `latest` 标签？",
+        "options": [
+          "因为 `latest` 标签的镜像体积更大，下载速度慢",
+          "因为 `latest` 标签可能随时间变化指向不同版本，导致环境不一致",
+          "因为 `latest` 标签只能用于官方镜像，不适用于第三方镜像",
+          "因为指定标签可以节省磁盘空间"
+        ],
+        "answer": 1,
+        "explanation": "`latest` 标签是一个动态指针，通常指向最新稳定版，但可能会随镜像更新而改变。如果生产环境依赖 `latest`，不同时间部署可能得到不同版本，导致环境不一致。指定明确标签（如 `22.04`）可确保版本固定。"
+      },
+      {
+        "question": "运行 `docker images` 命令后，输出中显示的 `IMAGE ID` 是什么？",
+        "options": [
+          "镜像文件的完整 SHA256 哈希值",
+          "镜像仓库的访问地址",
+          "镜像创建时的随机编号",
+          "镜像的版本号"
+        ],
+        "answer": 0,
+        "explanation": "`IMAGE ID` 是镜像内容的唯一标识符，基于镜像的配置和层计算出的 SHA256 哈希值，通常显示为 12 位缩写。它用于唯一标识一个镜像，而非版本号或仓库地址。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 4,
+    "lesson_title": "2.2 管理 Docker 容器",
+    "questions": [
+      {
+        "question": "在 Docker 中，使用 `docker run -d -p 8080:80 nginx` 命令启动一个 Nginx 容器后，以下哪项描述是正确的？",
+        "options": [
+          "容器会以前台模式运行，并显示 Nginx 的访问日志。",
+          "容器会在后台运行，并且访问宿主机的 8080 端口可以访问到容器的 80 端口。",
+          "容器会启动并立即自动删除，因为使用了 `-d` 参数。",
+          "容器会进入交互式终端，允许用户直接在容器内执行命令。"
+        ],
+        "answer": 1,
+        "explanation": "`-d` 参数让容器在后台（detached）运行，`-p 8080:80` 将宿主机的 8080 端口映射到容器的 80 端口。因此，容器在后台运行，且可通过宿主机 8080 端口访问容器内的 Nginx 服务。选项 A 错误，因为 `-d` 是后台运行，不会在前台显示日志；选项 C 错误，`-d` 不导致自动删除；选项 D 错误，`-it` 才是交互式终端的参数。"
+      },
+      {
+        "question": "你使用 `docker run -it ubuntu bash` 启动了一个 Ubuntu 容器，并进入了 bash 终端。现在你想退出容器，但希望容器继续在后台运行，以便稍后重新连接。你应该怎么做？",
+        "options": [
+          "直接关闭终端窗口。",
+          "在容器内输入 `exit` 命令。",
+          "按 `Ctrl + P` 然后按 `Ctrl + Q`。",
+          "在宿主机上执行 `docker stop <容器ID>`。"
+        ],
+        "answer": 2,
+        "explanation": "在通过 `-it` 进入的交互式终端中，按 `Ctrl + P` 然后 `Ctrl + Q` 是 Docker 提供的脱离（detach）快捷键，它会从容器中退出，但容器本身会继续在后台运行。选项 A 关闭终端可能导致容器停止；选项 B 输入 `exit` 会退出 bash 进程，从而导致容器停止；选项 D 是强制停止容器，不符合“继续在后台运行”的需求。"
+      },
+      {
+        "question": "你有一个运行中的 Web 应用容器，名为 `myapp`。你发现应用代码有 bug，需要在容器内修改一个配置文件。以下哪条命令可以让你安全地进入该容器进行操作？",
+        "options": [
+          "`docker start myapp`",
+          "`docker attach myapp`",
+          "`docker exec -it myapp /bin/bash`",
+          "`docker run -it myapp /bin/bash`"
+        ],
+        "answer": 2,
+        "explanation": "`docker exec -it myapp /bin/bash` 可以在运行中的容器 `myapp` 内启动一个新的 bash 进程，并为你提供交互式终端，非常适合在不影响容器主进程的情况下进行操作。选项 A 是启动一个已停止的容器，而不是进入运行中的容器；选项 B `docker attach` 会连接到容器的主进程，通常用于查看输出，但可能干扰主进程；选项 D 会基于镜像创建一个新的容器，而不是进入已有的容器。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 5,
+    "lesson_title": "3.1 初识 Dockerfile",
+    "questions": [
+      {
+        "question": "在 Dockerfile 中，哪个指令是必须出现在文件开头的，用于指定构建新镜像的基础？",
+        "options": [
+          "FROM",
+          "WORKDIR",
+          "RUN",
+          "CMD"
+        ],
+        "answer": 0,
+        "explanation": "`FROM` 指令是所有 Dockerfile 的起点，它指定了新镜像基于哪个现有镜像构建（如 `python:3.9-slim`）。如果没有 `FROM`，Docker 引擎无法知道从哪里开始构建，因此它是必须的。"
+      },
+      {
+        "question": "假设你有一个 Python 应用，代码在宿主机上的 `./app` 目录中。为了在构建镜像时将该目录复制到容器的 `/usr/src/app` 路径下，你应该使用哪条指令？",
+        "options": [
+          "COPY ./app /usr/src/app",
+          "WORKDIR ./app /usr/src/app",
+          "RUN cp ./app /usr/src/app",
+          "CMD COPY ./app /usr/src/app"
+        ],
+        "answer": 0,
+        "explanation": "`COPY` 指令用于将宿主机上的文件或目录复制到容器文件系统中。格式为 `COPY <源路径> <目标路径>`，其中源路径是相对于 Dockerfile 所在目录的路径。其他选项：`WORKDIR` 设置工作目录但不复制文件；`RUN` 在容器内执行命令，但无法直接访问宿主机文件；`CMD` 指定容器启动命令，不用于构建时复制。"
+      },
+      {
+        "question": "在 Dockerfile 中，`RUN` 和 `CMD` 指令的主要区别是什么？",
+        "options": [
+          "`RUN` 在构建镜像时执行，而 `CMD` 在容器启动时执行",
+          "`RUN` 只能运行一条命令，而 `CMD` 可以运行多条",
+          "`RUN` 用于复制文件，而 `CMD` 用于运行应用",
+          "`RUN` 和 `CMD` 功能完全相同，只是名称不同"
+        ],
+        "answer": 0,
+        "explanation": "`RUN` 在镜像构建过程中执行命令（如安装软件包），每次执行都会创建新的镜像层；而 `CMD` 指定容器启动时的默认命令（如 `python app.py`），且一个 Dockerfile 只能有一个 `CMD`。如果 `docker run` 时附加了命令，`CMD` 会被覆盖。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 6,
+    "lesson_title": "3.2 使用 `docker build` 构建镜像",
+    "questions": [
+      {
+        "question": "在使用 `docker build -t myapp:1.0 .` 命令构建镜像时，命令末尾的 `.` 表示什么？",
+        "options": [
+          "表示 Dockerfile 的路径是当前目录",
+          "表示将当前目录作为构建上下文发送给 Docker 守护进程",
+          "表示构建的镜像标签版本号为 1.0",
+          "表示构建过程中需要忽略当前目录下的所有文件"
+        ],
+        "answer": 1,
+        "explanation": "命令末尾的 `.` 指定了构建上下文（Build Context）为当前目录。Docker 会将整个当前目录打包发送给 Docker 守护进程，以便在构建过程中使用其中的文件（如 Dockerfile 和需要的资源）。选项 A 容易混淆，但构建上下文不仅仅是 Dockerfile 的路径，它还包括所有可能被 COPY 或 ADD 指令引用的文件。"
+      },
+      {
+        "question": "以下关于 `docker build` 构建上下文的说法，哪一项是正确的？",
+        "options": [
+          "构建上下文必须包含 Dockerfile 文件，且 Dockerfile 必须位于上下文的根目录",
+          "构建上下文是 Docker 守护进程执行构建时的工作目录，可以包含任意文件",
+          "构建上下文中的文件会被全部复制到镜像的每一层中",
+          "构建上下文越大，构建速度越快，因为包含更多资源"
+        ],
+        "answer": 0,
+        "explanation": "默认情况下，Docker 会在构建上下文的根目录寻找名为 Dockerfile 的文件（可通过 -f 参数指定其他路径）。构建上下文中的所有文件都会被发送到 Docker 守护进程，但只有 Dockerfile 中通过 COPY 或 ADD 指令显式指定的文件才会被包含到镜像中。上下文越大，传输和处理时间越长，构建速度反而会变慢。"
+      },
+      {
+        "question": "构建完一个名为 `myapp:latest` 的镜像后，使用 `docker history myapp:latest` 命令可以查看到什么？",
+        "options": [
+          "镜像的创建时间和作者信息",
+          "镜像的每一层（Layer）的创建指令和大小",
+          "镜像中所有已安装的软件包列表",
+          "镜像的 Dockerfile 完整内容"
+        ],
+        "answer": 1,
+        "explanation": "`docker history` 命令会显示镜像的分层历史，包括每一层是由哪条 Dockerfile 指令（如 RUN、COPY、ADD 等）创建的，以及该层的大小。这有助于理解镜像的分层结构和优化镜像大小。它不会显示作者、软件包列表或完整的 Dockerfile 内容。"
+      }
+    ]
+  }
+]

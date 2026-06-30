@@ -1,6 +1,22 @@
 {
   "courses": [
     {
+      "id": "docker-容器技术入门",
+      "title": "Docker 容器技术入门",
+      "description": "关于「Docker 容器技术入门」的自动生成课程",
+      "icon": "📚",
+      "tags": [
+        "自动生成"
+      ],
+      "progress": 0,
+      "lesson_count": 6,
+      "created_at": "2026-07-01T01:15:58.526585",
+      "path": "lessons/docker-容器技术入门/course.md",
+      "podcast": "lessons/docker-容器技术入门/podcast.mp3",
+      "video": "lessons/docker-容器技术入门/video.mp4",
+      "quiz": "lessons/docker-容器技术入门/quiz.json"
+    },
+    {
       "id": "git-基础入门",
       "title": "Git 基础入门",
       "description": "关于「Git 基础入门」的自动生成课程",

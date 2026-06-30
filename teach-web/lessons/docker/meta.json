@@ -1,0 +1,16 @@
+{
+  "id": "docker-容器技术入门",
+  "title": "Docker 容器技术入门",
+  "description": "关于「Docker 容器技术入门」的自动生成课程",
+  "icon": "📚",
+  "tags": [
+    "自动生成"
+  ],
+  "progress": 0,
+  "created_at": "2026-07-01T01:15:58.526585",
+  "lesson_count": 6,
+  "files": {
+    "course": "course.md",
+    "quiz": "quiz.json"
+  }
+}
