@@ -1,0 +1,13 @@
+  📝 生成课程大纲和讲义…
+Traceback (most recent call last):
+  File "C:\Users\norman\WorkBuddy\2026-06-30-23-01-30\scripts\generate_course.py", line 322, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\norman\WorkBuddy\2026-06-30-23-01-30\scripts\generate_course.py", line 314, in main
+    meta = generate_course(args.topic, materials, output_dir, api_key, args.model)
+  File "C:\Users\norman\WorkBuddy\2026-06-30-23-01-30\scripts\generate_course.py", line 148, in generate_course
+    course_md = call_llm(build_course_prompt(topic, materials), api_key, model)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\norman\WorkBuddy\2026-06-30-23-01-30\scripts\generate_course.py", line 91, in build_course_prompt
+    # {课程标题}
+NameError: name '课程标题' is not defined
