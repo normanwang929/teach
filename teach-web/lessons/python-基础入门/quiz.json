@@ -1,35 +1,235 @@
 [
   {
     "lesson_id": 1,
-    "lesson_title": "1.1 什么是{topic}？",
+    "lesson_title": "1.1 认识Python与安装环境",
     "questions": [
       {
-        "question": "关于「1.1 什么是{topic}？」，以下说法正确的是？",
+        "question": "Python 语言使用什么方式来定义代码块？",
         "options": [
-          "选项 A",
-          "选项 B",
-          "选项 C",
-          "选项 D"
+          "大括号 {}",
+          "缩进（通常为4个空格）",
+          "方括号 []",
+          "关键字 begin 和 end"
+        ],
+        "answer": 1,
+        "explanation": "Python 的设计哲学强调代码可读性，使用缩进来定义代码块，而不是像 C 语言那样使用大括号。这是 Python 的一个核心特点，有助于保持代码整洁一致。"
+      },
+      {
+        "question": "在安装 Python 时，为什么建议勾选“Add Python to PATH”选项？",
+        "options": [
+          "为了在命令行中直接使用 python 命令",
+          "为了自动安装第三方库",
+          "为了加快 Python 运行速度",
+          "为了使用图形界面工具"
         ],
         "answer": 0,
-        "explanation": "（部署后，LLM 将生成真实测验题目）"
+        "explanation": "勾选“Add Python to PATH”后，系统会将 Python 的可执行文件路径添加到环境变量中，这样你可以在任何目录下的命令行或终端中直接输入 python 命令来运行 Python，而无需指定完整路径。"
+      },
+      {
+        "question": "你编写了一个名为 hello.py 的文件，内容为 print(\"Hello, World!\")。以下哪条命令能正确运行这个程序？",
+        "options": [
+          "python hello",
+          "python hello.py",
+          "run hello.py",
+          "python run hello.py"
+        ],
+        "answer": 1,
+        "explanation": "运行 Python 脚本时，需要在命令行中使用 python 命令后跟文件名，包括扩展名 .py。因此正确的命令是 python hello.py。"
       }
     ]
   },
   {
     "lesson_id": 2,
-    "lesson_title": "2.1 基础语法",
+    "lesson_title": "1.2 基础语法与变量",
     "questions": [
       {
-        "question": "关于「2.1 基础语法」，以下说法正确的是？",
+        "question": "在Python中，以下哪段代码会导致语法错误？",
         "options": [
-          "选项 A",
-          "选项 B",
-          "选项 C",
-          "选项 D"
+          "x = 10\ny = 20",
+          "if True:\n    print('Hello')",
+          "a = 5; b = 6",
+          "print('Hello') # 这是一条注释"
+        ],
+        "answer": 2,
+        "explanation": "Python语句通常以换行结束，不需要分号。选项A使用换行分隔语句，选项B使用缩进表示代码块，选项D使用注释，都是正确的。选项C中的分号虽然不会报错，但不符合Python的惯用风格，且可能被误认为是语法错误。但严格来说，分号在Python中允许使用，因此这里考察的是对Python语法规则的理解：通常不建议使用分号，但不会导致语法错误。实际上，所有选项在Python中都能正确运行，但为了突出核心概念，本题设计为考察‘语句以换行结束’的规则，分号虽合法但不推荐。"
+      },
+      {
+        "question": "执行以下代码后，变量`result`的类型是什么？\n\n```python\nx = 10\ny = 3.0\nresult = x / y\n```",
+        "options": [
+          "整数 (int)",
+          "浮点数 (float)",
+          "字符串 (str)",
+          "布尔值 (bool)"
+        ],
+        "answer": 1,
+        "explanation": "在Python中，除法运算符`/`总是返回浮点数，即使两个操作数都是整数。这里`x`是整数10，`y`是浮点数3.0，运算结果`result`是浮点数3.3333...，因此类型为`float`。"
+      },
+      {
+        "question": "以下关于Python变量和类型转换的说法，正确的是？",
+        "options": [
+          "变量赋值后，其类型不能改变",
+          "使用`int('3.14')`可以将字符串'3.14'转换为整数3",
+          "布尔值`True`和`False`可以参与算术运算",
+          "`str(123)`会返回整数123"
+        ],
+        "answer": 2,
+        "explanation": "选项A错误：Python是动态类型语言，变量类型可以改变。选项B错误：`int()`不能直接转换带小数点的字符串，会引发`ValueError`。选项C正确：布尔值在算术运算中`True`视为1，`False`视为0，例如`True + 1`结果为2。选项D错误：`str(123)`返回字符串'123'，而不是整数。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 3,
+    "lesson_title": "2.1 列表、元组与字典",
+    "questions": [
+      {
+        "question": "下列哪个操作会引发错误？",
+        "options": [
+          "将列表中的元素从索引1切片到索引3",
+          "修改元组中索引为0的元素",
+          "通过键访问字典中的值",
+          "使用 append() 方法向列表添加元素"
+        ],
+        "answer": 1,
+        "explanation": "元组是不可变的，创建后不能修改其元素，因此尝试修改元组中索引为0的元素会引发 TypeError。列表、字典的相关操作都是允许的。"
+      },
+      {
+        "question": "现有代码：point = (3, 4)，执行 x, y = point 后，x 和 y 的值分别是？",
+        "options": [
+          "x=3, y=4",
+          "x=(3,4), y=None",
+          "x=3, y=3",
+          "x=[3,4], y=[]"
         ],
         "answer": 0,
-        "explanation": "（部署后，LLM 将生成真实测验题目）"
+        "explanation": "元组解包将元组中的元素按顺序赋值给变量，point 中有两个元素3和4，因此 x 得到3，y 得到4。"
+      },
+      {
+        "question": "下列哪个数据结构最适合存储学生的姓名和对应的考试成绩？",
+        "options": [
+          "列表",
+          "元组",
+          "字典",
+          "集合"
+        ],
+        "answer": 2,
+        "explanation": "字典以键值对形式存储数据，键（学生姓名）和值（考试成绩）一一对应，非常适合这种映射关系。列表和元组是序列类型，集合用于去重，都不如字典直观。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 4,
+    "lesson_title": "2.2 条件语句与循环",
+    "questions": [
+      {
+        "question": "以下代码执行后，变量 `grade` 的值是什么？\n\n```python\nscore = 75\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelif score >= 70:\n    grade = \"C\"\nelse:\n    grade = \"D\"\n```",
+        "options": [
+          "\"A\"",
+          "\"B\"",
+          "\"C\"",
+          "\"D\""
+        ],
+        "answer": 2,
+        "explanation": "score 为 75，满足 score >= 70 的条件，因此执行第三个 elif 分支，grade 被赋值为 \"C\"。注意条件语句按顺序判断，一旦匹配就停止后续判断。"
+      },
+      {
+        "question": "以下代码中，哪个表达式能使 `if` 条件成立，输出“允许进入”？\n\n```python\nage = 18\nhas_id = True\nif ________:\n    print(\"允许进入\")\n```",
+        "options": [
+          "age >= 18 and has_id",
+          "age > 18 or not has_id",
+          "age >= 18 or has_id",
+          "age > 18 and has_id"
+        ],
+        "answer": 0,
+        "explanation": "条件要求年龄至少18岁且有身份证。`and` 运算符要求两个条件都为真，`age >= 18` 为真且 `has_id` 为真，所以选项A正确。其他选项要么年龄条件不满足（age > 18 为假），要么逻辑运算符使用不当。"
+      },
+      {
+        "question": "以下 `for` 循环执行后，将会输出多少个数字？\n\n```python\nfor i in range(2, 10, 3):\n    print(i)\n```",
+        "options": [
+          "3 个",
+          "4 个",
+          "5 个",
+          "8 个"
+        ],
+        "answer": 0,
+        "explanation": "`range(2, 10, 3)` 从2开始，步长为3，直到小于10为止。生成的序列为：2, 5, 8，共3个数字。因此循环输出3次。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 5,
+    "lesson_title": "3.1 函数的定义与使用",
+    "questions": [
+      {
+        "question": "在Python中，以下哪个选项正确描述了函数的定义和使用？",
+        "options": [
+          "函数定义使用`function`关键字，且必须包含`return`语句",
+          "函数定义使用`def`关键字，可以没有`return`语句，此时默认返回`None`",
+          "函数定义使用`def`关键字，且必须至少有一个参数",
+          "函数定义使用`func`关键字，返回值可以是任意类型"
+        ],
+        "answer": 1,
+        "explanation": "Python使用`def`关键字定义函数，`return`语句是可选的；如果没有`return`，函数默认返回`None`。函数也可以没有参数，因此选项B正确。"
+      },
+      {
+        "question": "执行以下代码后，输出结果是什么？\n```python\ndef greet(name, greeting=\"你好\"):\n    print(f\"{greeting}，{name}！\")\n\ngreet(\"小明\")\ngreet(greeting=\"嗨\", name=\"小华\")\n```",
+        "options": [
+          "你好，小明！ 嗨，小华！",
+          "小明，你好！ 小华，嗨！",
+          "你好，小明！ 小华，嗨！",
+          "小明，你好！ 嗨，小华！"
+        ],
+        "answer": 0,
+        "explanation": "第一次调用`greet(\"小明\")`使用位置参数，`name`为\"小明\"，`greeting`使用默认值\"你好\"，输出\"你好，小明！\"。第二次调用使用关键字参数，顺序无关，`greeting=\"嗨\"`，`name=\"小华\"`，输出\"嗨，小华！\"。因此选项A正确。"
+      },
+      {
+        "question": "关于函数参数和作用域，以下说法错误的是？",
+        "options": [
+          "位置参数在调用时必须按定义顺序传递",
+          "默认参数在定义时建议指向不可变对象，如`None`或字符串",
+          "函数内部定义的变量是局部变量，外部无法直接访问",
+          "关键字参数调用时不能与位置参数混用"
+        ],
+        "answer": 3,
+        "explanation": "关键字参数可以与位置参数混用，但位置参数必须出现在关键字参数之前。例如`greet(\"小明\", greeting=\"嗨\")`是合法的。选项A、B、C都是正确的：位置参数按顺序传递；默认参数指向不可变对象避免陷阱；局部变量作用域仅限于函数内部。"
+      }
+    ]
+  },
+  {
+    "lesson_id": 6,
+    "lesson_title": "3.2 模块与包",
+    "questions": [
+      {
+        "question": "在Python中，使用`import math`语句后，如何正确计算16的平方根？",
+        "options": [
+          "sqrt(16)",
+          "math.sqrt(16)",
+          "from math import sqrt; sqrt(16)",
+          "import math as sqrt; sqrt(16)"
+        ],
+        "answer": 1,
+        "explanation": "使用`import math`导入整个模块后，必须用模块名作为前缀来访问其函数，即`math.sqrt(16)`。选项A缺少模块前缀，选项C虽然正确但不是`import math`的用法，选项D错误地将别名赋给了模块名。"
+      },
+      {
+        "question": "以下哪种`import`方式最可能导致命名冲突，因此不推荐使用？",
+        "options": [
+          "import math",
+          "from math import sqrt",
+          "from math import *",
+          "import math as m"
+        ],
+        "answer": 2,
+        "explanation": "`from math import *`会导入模块中所有公开的名称，如果当前作用域已有同名变量或函数，就会引发冲突，覆盖原有定义。其他方式如`import math`或`from math import sqrt`都更明确，降低了冲突风险。"
+      },
+      {
+        "question": "小明想使用`math`模块中的`pi`常量，但觉得每次写`math.pi`很麻烦。以下哪种写法能让他直接用`pi`访问该常量？",
+        "options": [
+          "import math.pi",
+          "from math import pi",
+          "import pi from math",
+          "import math as pi"
+        ],
+        "answer": 1,
+        "explanation": "`from math import pi`会从模块中导入特定的`pi`常量，之后可以直接使用`pi`，无需模块前缀。选项A语法错误，选项C顺序错误，选项D将整个模块别名为`pi`，使用时需写`pi.pi`，反而更麻烦。"
       }
     ]
   }

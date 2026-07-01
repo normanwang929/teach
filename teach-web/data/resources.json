@@ -1,0 +1,166 @@
+{
+  "course": "Python基础入门",
+  "description": "零基础Python入门课程 - 每节配免费B站/YouTube教程",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "初识Python与环境搭建",
+      "subsections": [
+        {
+          "id": "1.1",
+          "title": "认识Python与安装环境",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "零基础入门学习Python·环境搭建",
+              "url": "https://www.bilibili.com/video/BV1c4411e77t/",
+              "duration": "30min",
+              "note": "小甲鱼经典教程，讲环境搭建和第一个程序"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "Anaconda零基础入门到精通",
+              "url": "https://www.bilibili.com/video/BV1uK7S6PE2K/",
+              "duration": "45min",
+              "note": "环境配置完整指南，含虚拟环境包管理"
+            },
+            {
+              "type": "video",
+              "platform": "YouTube",
+              "title": "Python快速入门·1小时让代码为你打工",
+              "url": "https://www.youtube.com/watch?v=D2Nf2EPKyrY",
+              "duration": "60min",
+              "note": "2026最新，变量/判断/循环全覆盖"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "基础语法与变量",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "《笨办法学Python》第5版·变量和字符串",
+              "url": "https://www.bilibili.com/video/BV1oHrYYwEnu/",
+              "duration": "20min",
+              "note": "变量命名、字符串操作、数字类型"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "2026最新Python零基础教程·数据类型",
+              "url": "https://www.bilibili.com/video/BV1FEAVzbELQ/",
+              "duration": "60min",
+              "note": "语法基础+进阶全部核心知识点"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "数据结构与流程控制",
+      "subsections": [
+        {
+          "id": "2.1",
+          "title": "列表、元组与字典",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "748集全集·Python数据结构部分",
+              "url": "https://www.bilibili.com/video/BV1KAiGBiEs8/",
+              "duration": "90min",
+              "note": "2026年Python系统课，从基础到实战"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "100集从零学Python·列表元组字典",
+              "url": "https://www.bilibili.com/video/BV11Hjm6HEQd/",
+              "duration": "45min",
+              "note": "2026新手入门实用版"
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "条件语句与循环",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "Python条件判断与循环精讲",
+              "url": "https://www.bilibili.com/video/BV1FEAVzbELQ/",
+              "duration": "40min",
+              "note": "if/else/for/while全覆盖"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "《笨办法学Python》·循环章节",
+              "url": "https://www.bilibili.com/video/BV1oHrYYwEnu/",
+              "duration": "25min",
+              "note": "while循环和for循环实战"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "函数与模块",
+      "subsections": [
+        {
+          "id": "3.1",
+          "title": "函数的定义与使用",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "Python函数定义与使用完整教程",
+              "url": "https://www.bilibili.com/video/BV1KAiGBiEs8/",
+              "duration": "60min",
+              "note": "748集全集函数章节"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "100集零基础·函数部分",
+              "url": "https://www.bilibili.com/video/BV11Hjm6HEQd/",
+              "duration": "30min",
+              "note": "函数定义、参数、返回值"
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "模块与包",
+          "resources": [
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "Python模块与包管理详解",
+              "url": "https://www.bilibili.com/video/BV1FEAVzbELQ/",
+              "duration": "35min",
+              "note": "import、pip、第三方库管理"
+            },
+            {
+              "type": "video",
+              "platform": "B站",
+              "title": "《笨办法学Python》·模块",
+              "url": "https://www.bilibili.com/video/BV1oHrYYwEnu/",
+              "duration": "20min",
+              "note": "模块导入和自定义模块"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total_resources": 12,
+  "sources": ["B站", "YouTube"]
+}

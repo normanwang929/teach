@@ -229,7 +229,7 @@ def generate_srt(segments: list[dict], output_path: str) -> bool:
 # ── 视频合成 ────────────────────────────────────────────────────
 def build_ffmpeg_slide_video(
     image_files: list[str],
-    audio_file: str,
+    audio_file: str | None,
     output_path: str,
     slide_durations: list[float],
     srt_file: str | None = None,
@@ -237,8 +237,6 @@ def build_ffmpeg_slide_video(
 ) -> bool:
     """
     用 FFmpeg 将图片序列 + 音频合成为视频。
-
-    策略: 用 complex filter 控制每张幻灯片显示时长。
     """
     import subprocess
 
@@ -261,10 +259,16 @@ def build_ffmpeg_slide_video(
     cmd = [
         "ffmpeg", "-y",
         "-f", "concat", "-safe", "0", "-i", concat_file,
-        "-i", audio_file,
+    ]
+
+    # 有配音才加音频输入
+    if audio_file and os.path.exists(audio_file):
+        cmd += ["-i", audio_file, "-c:a", "aac", "-b:a", "128k", "-shortest"]
+    else:
+        cmd += ["-an"]  # 无音频
+
+    cmd += [
         "-c:v", "libx264", "-preset", "fast", "-crf", "23",
-        "-c:a", "aac", "-b:a", "128k",
-        "-shortest",
         "-vf", f"scale={resolution[0]}:{resolution[1]}:force_original_aspect_ratio=decrease,pad={resolution[0]}:{resolution[1]}:(ow-iw)/2:(oh-ih)/2",
         output_path,
     ]
@@ -318,18 +322,14 @@ def generate_voiceover_audio(
     output_path: str,
     voice: str = "zh-CN-XiaoxiaoNeural",
 ) -> bool:
-    """用 edge-tts 生成配音音频"""
+    """用 gTTS 生成配音音频"""
     try:
-        import edge_tts
-
-        async def _speak():
-            communicate = edge_tts.Communicate(script, voice)
-            await communicate.save(output_path)
-
-        asyncio.run(_speak())
+        from gtts import gTTS
+        tts = gTTS(text=script, lang='zh-cn', slow=False)
+        tts.save(output_path)
         return os.path.exists(output_path)
     except ImportError:
-        print("❌ 未安装 edge-tts: pip install edge-tts")
+        print("❌ 未安装 gTTS: pip install gtts")
         return False
     except Exception as e:
         print(f"❌ TTS 失败: {e}")

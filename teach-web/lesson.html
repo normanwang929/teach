@@ -57,6 +57,13 @@
       <!-- 讲义内容（Markdown 渲染） -->
       <article class="lesson-article markdown-body" id="lessonArticle"></article>
 
+      <!-- 学习资源推荐 -->
+      <div class="video-recommend" id="videoRecommend">
+        <h3 class="video-section-title">📺 推荐学习资源</h3>
+        <p class="video-section-desc">每节匹配的B站/YouTube免费教程，点开即看</p>
+        <div id="videoCards"></div>
+      </div>
+
       <!-- 底部导航 -->
       <div class="lesson-nav" id="lessonNav"></div>
     </div>
@@ -483,6 +490,66 @@
         </div>
       `;
     }
+
+    // ── 视频资源加载 ──────────────────────────────────────────────
+    let courseResources = null;
+
+    async function loadResources() {
+      try {
+        const resp = await fetch('data/resources.json');
+        courseResources = await resp.json();
+      } catch(e) {
+        console.log('资源文件未找到，跳过');
+      }
+    }
+
+    function renderVideoCards(chapterId, subsectionId) {
+      const container = document.getElementById('videoCards');
+      if (!container || !courseResources) return;
+
+      const chapter = courseResources.chapters.find(c => c.id === chapterId);
+      if (!chapter) return;
+      const sub = chapter.subsections.find(s => s.id === subsectionId);
+      if (!sub || !sub.resources || sub.resources.length === 0) {
+        container.innerHTML = '<div class="video-empty">暂无推荐资源</div>';
+        return;
+      }
+
+      container.innerHTML = sub.resources.map(v => `
+        <a href="${v.url}" target="_blank" class="video-card" rel="noopener">
+          <div class="video-card-icon">${v.platform === 'B站' ? '📺' : '▶️'}</div>
+          <div class="video-card-body">
+            <div class="video-card-title">${v.title}</div>
+            <div class="video-card-meta">
+              <span class="video-platform">${v.platform}</span>
+              <span class="video-duration">${v.duration}</span>
+            </div>
+            <div class="video-card-note">${v.note}</div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // 扩展原有的 loadLesson 函数
+    const origLoadLesson = window.loadLesson;
+    window.loadLesson = async function(id) {
+      await loadResources();
+      if (origLoadLesson) await origLoadLesson(id);
+    };
+
+    // 在原有章节切换后调用视频渲染
+    // 通过 MutationObserver 检测章节内容变化
+    const _videoObserver = new MutationObserver(() => {
+      const sectionId = document.getElementById('lessonContent')?.dataset?.sectionId;
+      if (sectionId && courseResources) {
+        const [ch, sub] = sectionId.split('.');
+        renderVideoCards(parseInt(ch), sectionId);
+      }
+    });
+    setTimeout(() => {
+      const target = document.getElementById('lessonContent');
+      if (target) _videoObserver.observe(target, { childList: true, subtree: true });
+    }, 500);
   </script>
 </body>
 </html>
